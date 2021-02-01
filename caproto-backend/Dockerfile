@@ -12,4 +12,4 @@ RUN pip3 install -r /tmp/requirements.txt
 COPY ./caproto-backend /tmp/caproto-backend
 WORKDIR /tmp/caproto-backend
 
-CMD export PYTHONPATH=. && python3 server.py
+CMD export PYTHONPATH=. && python3 caprotobackend/server.py

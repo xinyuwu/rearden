@@ -1,14 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { LegacyForms } from '@grafana/ui';
+
 import { PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory, useTheme } from '@grafana/ui';
 
+import { getDataSourceSrv } from '@grafana/runtime';
+
+const { FormField } = LegacyForms;
+
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  const [state, setState] = useState({ loading: false });
+  const [message, setMessage] = useState('');
+  const [pvValue, setPvValue] = useState('');
+
   const theme = useTheme();
   const styles = getStyles();
+  let color: string;
+  switch (options.color) {
+    case 'red':
+      color = theme.palette.redBase;
+      break;
+    case 'green':
+      color = theme.palette.greenBase;
+      break;
+    case 'blue':
+      color = theme.palette.blue95;
+      break;
+  }
+
+  async function userAction() {
+    setState({ ...state, loading: true });
+    const dataSourceSrv: any = getDataSourceSrv();
+    const dataSources = dataSourceSrv.datasources;
+    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    console.log('Hello world: ' + dataSource);
+    dataSource.doWrite([Number(pvValue)]).then((response: any) => {
+      const responseData = response.data;
+      console.log('responseData', responseData);
+      setMessage(responseData['message']);
+    });
+  }
+
+  const radii: number[] = [];
+
+  data.series.forEach(dataFrame => {
+    let values = dataFrame.fields[1].values;
+    for (let i = 0; i < values.length; i++) {
+      let val = values.get(i);
+      radii.push(val);
+      // console.log(val);
+    }
+  });
+
   return (
     <div
       className={cx(
@@ -19,18 +66,27 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <svg
-        className={styles.svg}
-        width={width}
-        height={height}
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        viewBox={`-${width / 2} -${height / 2} ${width} ${height}`}
-      >
-        <g>
-          <circle style={{ fill: `${theme.isLight ? theme.palette.greenBase : theme.palette.blue95}` }} r={100} />
+      <svg width={width} height={height - 150}>
+        <g fill={color}>
+          {radii.map((radius, index) => {
+            const step = width / radii.length;
+            return (
+              <circle r={Math.abs(radius * 10)} transform={`translate(${index * step + step / 2}, ${height / 2})`} />
+            );
+          })}
         </g>
       </svg>
+
+      <div>
+        <FormField
+          label="New PV Value"
+          placeholder="Enter a new PV value"
+          onChange={e => setPvValue(e.target.value)}
+          value={pvValue}
+        />
+        <button onClick={userAction}>Clickme</button>
+        <p>{message}</p>
+      </div>
 
       <div className={styles.textBox}>
         {options.showSeriesCount && (

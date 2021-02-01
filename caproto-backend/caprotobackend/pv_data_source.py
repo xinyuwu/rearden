@@ -1,10 +1,7 @@
-from aiohttp import ClientSession
-import asyncio
 import logging
-import datetime
 import json
 
-from util import rest_request_handler, require_authentication
+from caprotobackend.util import rest_request_handler, require_authentication
 
 from caproto.threading.client import Context
 import caproto
@@ -22,7 +19,7 @@ class PVDataSource:
         self.ctx = Context()
 
     @rest_request_handler
-    @require_authentication(mode='Read')
+    @require_authentication(permission='Read')
     async def read_pv(self, request):
         pv_name = request.match_info.get('pv_name')
         pv = self.ctx.get_pvs(pv_name)[0]
@@ -32,12 +29,12 @@ class PVDataSource:
             'data_type': pv_value.data_type.name,
             'time_stamp': meta_data.stamp.as_datetime().timestamp() * 1000,
             'alarm_status': caproto.AlarmStatus(meta_data.status).name,
-            'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name, 
+            'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name,
             'data': pv_value.data.tolist(),
         }
 
     @rest_request_handler
-    @require_authentication(mode='Write')
+    @require_authentication(permission='Write')
     async def write_pv(self, request):
         pv_name = request.match_info.get('pv_name')
 
@@ -59,7 +56,7 @@ class PVDataSource:
                 'data_type': pv_value.data_type.name,
                 'time_stamp': meta_data.stamp.as_datetime().timestamp() * 1000,
                 'alarm_status': caproto.AlarmStatus(meta_data.status).name,
-                'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name, 
+                'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name,
                 'data': pv_value.data.tolist(),
             }
         else:
@@ -67,4 +64,3 @@ class PVDataSource:
                 'status': 'fail',
                 'message': result.status.description,
             }
-

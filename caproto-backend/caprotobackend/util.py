@@ -3,6 +3,9 @@ import datetime
 import functools
 import json
 import logging
+import jwt
+
+SECRET_KEY = '1sCETvywO1oinJa3u78HUGafyMHRbaHnExhhqFN06JZwta0u3Qb8DwRKsU5Arsa'
 
 
 def json_encode(obj):
@@ -34,37 +37,43 @@ def rest_request_handler(func):
     return rest_request_handler_inner
 
 
-def require_authentication(mode):
-    logging.info('authenticate')
+def require_authentication(permission):
+
     def actual_authenticate(func):
         @functools.wraps(func)
         async def authenticate(*args):
             try:
                 request = args[1]
-                token = request.headers['Authorization']
-                headers = {"Authorization": token}
-                async with ClientSession() as session:
-                    result = await fetch(session=session, url='http://nginx:8080/api/auth/keys', headers=headers)
-                    if type(result) is not list:
-                        return {"message": result.get('message')}
-
-                    user_info = result[0]
-                    if user_info:
-                        if mode=='Read':
-                            return await func(*args)
-
-                        if mode=='Write' and user_info['role']!='Viewer':
-                            return await func(*args)
-
+                token_passed = request.headers['TOKEN']
+                token_info = jwt.decode(token_passed, SECRET_KEY, algorithms=['HS256'])
             except Exception as e:
                 logging.exception('Unhandled error:')
-                return {"message": "Permission denied " + str(e)}
+                return {"message": "Invalid token: " + str(e)}
+
+            try:
+                if token_info:
+                    expire_time_str = token_info.get('expire')
+                    if expire_time_str:
+                        time_sec = int(expire_time_str) / 1000
+                        expire_time = datetime.datetime.fromtimestamp(time_sec)
+                        if expire_time < datetime.datetime.utcnow():
+                            return {"message": "Token expired"}
+
+                    if (token_info.get('permission') == 'read' or token_info.get('permission') == 'write') \
+                            and permission == 'Read':
+                        return await func(*args)
+
+                    if permission == 'Write' and token_info.get('permission') == 'write':
+                        return await func(*args)
+            except Exception as e:
+                raise e
 
             return {"message": "Permission denied"}
 
         return authenticate
 
     return actual_authenticate
+
 
 async def fetch(session, url, timeout_total=20, params={}, headers={}, is_result_json=True):
     timeout = ClientTimeout(total=timeout_total)

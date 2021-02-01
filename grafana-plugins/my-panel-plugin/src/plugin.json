@@ -1,14 +1,16 @@
 {
   "type": "panel",
-  "name": "my-panel-plugin",
-  "id": "csiro-my-panel-plugin",
+  "name": "XinyuPanel",
+  "id": "csiro-xinyu-panel",
   "info": {
-    "description": "GUI plugin which tests writing to PV",
+    "description": "Xinyu's first panel plugin",
     "author": {
       "name": "Xinyu Wu",
       "url": ""
     },
-    "keywords": [],
+    "keywords": [
+      "test"
+    ],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"

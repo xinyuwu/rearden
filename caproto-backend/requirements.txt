@@ -6,4 +6,4 @@ asynctest
 fixtures
 uvloop
 caproto
-jwt
+pyjwt

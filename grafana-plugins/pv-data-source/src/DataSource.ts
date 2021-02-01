@@ -54,7 +54,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
       method: 'POST',
       url: 'http://localhost:8080/pvapi/pv/write/random_walk:dt',
       data: value,
-      headers: { Authorization: 'Bearer ' + this.apiKey },
+      headers: { TOKEN: this.apiKey },
     });
 
     return result;
@@ -66,7 +66,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
       method: 'GET',
       url: 'http://localhost:8080/pvapi/pv/read/random_walk:dt',
       params: query,
-      headers: { Authorization: 'Bearer ' + this.apiKey },
+      headers: { TOKEN: this.apiKey },
     });
 
     return result;

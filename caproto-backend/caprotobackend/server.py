@@ -4,10 +4,8 @@ import aiohttp.web
 import uvloop
 
 import contextlib
-import logging
 
 from aiohttp import web
-from aiohttp_swagger import setup_swagger
 
 from pv_data_source import config_web_app 
 import logging
