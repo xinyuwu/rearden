@@ -1,0 +1,9 @@
+aiohttp
+aiohttp_auth
+aiohttp_session[aioredis]
+aiohttp-swagger[performance]
+asynctest
+fixtures
+uvloop
+caproto
+jwt

@@ -1,0 +1,4 @@
+### App Container ###
+
+FROM nginx
+COPY docker_compose_config/nginx_default.conf /etc/nginx/conf.d/default.conf

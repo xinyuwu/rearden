@@ -1,0 +1,43 @@
+### App Container ###
+
+# FROM grafana/grafana:7.3.7
+# USER root
+# RUN apk add --update nodejs npm yarn python3 python2 git
+
+# RUN useradd -m -d /home/dev dev
+
+# CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+
+FROM debian:latest
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+  python3 \
+  python3-pip \
+  npm \
+  git \
+  curl \
+  apt-transport-https \
+  software-properties-common \
+  wget
+
+RUN npm install -g yarn
+
+RUN wget -q -O - https://packages.grafana.com/gpg.key | apt-key add -
+RUN echo "deb https://packages.grafana.com/enterprise/deb stable main" | tee -a /etc/apt/sources.list.d/grafana.list
+RUN echo "deb https://packages.grafana.com/enterprise/deb beta main" | tee -a /etc/apt/sources.list.d/grafana.list
+
+RUN apt-get update && apt-get install -y grafana-enterprise
+
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
+
+RUN useradd -m -s /bin/bash -d /home/dev dev
+
+RUN cp /root/.bashrc /home/dev/.
+
+WORKDIR /usr/share/grafana
+CMD /usr/sbin/grafana-server --config=/etc/grafana/grafana.ini
+
+# CMD exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
