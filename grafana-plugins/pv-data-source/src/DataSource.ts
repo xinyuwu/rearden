@@ -24,8 +24,8 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    const promises = options.targets.map(query =>
-      this.doRequest(query).then(response => {
+    const promises = options.targets.map((query) =>
+      this.doRequest(query).then((response) => {
         const frame = new MutableDataFrame({
           refId: query.refId,
           fields: [
@@ -45,7 +45,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
       })
     );
 
-    return Promise.all(promises).then(data => ({ data }));
+    return Promise.all(promises).then((data) => ({ data }));
   }
 
   async doWrite(value: number[]) {

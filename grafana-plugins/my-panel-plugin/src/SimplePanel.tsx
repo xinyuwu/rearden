@@ -47,7 +47,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   const radii: number[] = [];
 
-  data.series.forEach(dataFrame => {
+  data.series.forEach((dataFrame) => {
     let values = dataFrame.fields[1].values;
     for (let i = 0; i < values.length; i++) {
       let val = values.get(i);
@@ -71,7 +71,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
           {radii.map((radius, index) => {
             const step = width / radii.length;
             return (
-              <circle r={Math.abs(radius * 10)} transform={`translate(${index * step + step / 2}, ${height / 2})`} />
+              <circle
+                key={index}
+                r={Math.abs(radius * 10)}
+                transform={`translate(${index * step + step / 2}, ${height / 2})`}
+              />
             );
           })}
         </g>
@@ -81,7 +85,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         <FormField
           label="New PV Value"
           placeholder="Enter a new PV value"
-          onChange={e => setPvValue(e.target.value)}
+          onChange={(e) => setPvValue(e.target.value)}
           value={pvValue}
         />
         <button onClick={userAction}>Clickme</button>
