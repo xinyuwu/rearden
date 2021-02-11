@@ -1,0 +1,15 @@
+.no_alarm {
+  background-color: #B71C1C;
+}
+
+.invalid_alarm {
+  background-color: #546E7A;
+}
+
+.major_alarm {
+  background-color: #B71C1C;
+}
+
+.minor_alarm {
+  background-color: #D32F2F;
+}

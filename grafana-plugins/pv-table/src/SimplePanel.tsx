@@ -1,8 +1,8 @@
 import React from 'react';
-import { PanelProps } from '@grafana/data';
+import './plugin.css';
+import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
-import { stylesFactory } from '@grafana/ui';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -15,28 +15,26 @@ import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-const rows = [
-  { name: 'Frozen yoghurt', calories: 159, fat: 6.0, carbs: 24, protein: 4.0 },
-  { name: 'Ice cream sandwich', calories: 237, fat: 9.0, carbs: 37, protein: 4.3 },
-  { name: 'Eclair', calories: 262, fat: 16.0, carbs: 24, protein: 6.0 },
-  { name: 'Cupcake', calories: 305, fat: 3.7, carbs: 67, protein: 4.3 },
-  { name: 'Gingerbread', calories: 356, fat: 16.0, carbs: 49, protein: 3.9 },
-];
-
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  // const theme = useTheme();
-  const styles = getStyles();
-
   const darkTheme = createMuiTheme({
     palette: {
       type: 'dark',
     },
   });
 
+  const fieldNames = options.pv_fields.split(',');
+
+  const fieldIndexMap: Map<string, number> = new Map();
+  if (data.series.length > 0) {
+    let frame = data.series[0];
+    for (let i = 0; i < frame.fields.length; i++) {
+      fieldIndexMap.set(frame.fields[i].name!, i);
+    }
+  }
+
   return (
     <div
       className={cx(
-        styles.wrapper,
         css`
           width: ${width}px;
           height: ${height}px;
@@ -48,23 +46,25 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
           <Table aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell>Dessert (100g serving)</TableCell>
-                <TableCell align="right">Calories</TableCell>
-                <TableCell align="right">Fat&nbsp;(g)</TableCell>
-                <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-                <TableCell align="right">Protein&nbsp;(g)</TableCell>
+                <TableCell>PV Name</TableCell>
+                {fieldNames.map(fieldName => (
+                  <TableCell align="right">{fieldName}</TableCell>
+                ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {rows.map(row => (
-                <TableRow key={row.name}>
-                  <TableCell component="th" scope="row">
-                    {row.name}
-                  </TableCell>
-                  <TableCell align="right">{row.calories}</TableCell>
-                  <TableCell align="right">{row.fat}</TableCell>
-                  <TableCell align="right">{row.carbs}</TableCell>
-                  <TableCell align="right">{row.protein}</TableCell>
+              {data.series.map(dataFrame => (
+                <TableRow key={dataFrame.refId}>
+                  <TableCell align="center"> {dataFrame.refId} </TableCell>
+                  {fieldNames.map(fieldName => (
+                    <TableCell
+                      align="right"
+                      className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
+                    >
+                      {getLastValue(dataFrame, fieldName, fieldIndexMap)}
+                    </TableCell>
+                  ))}
                 </TableRow>
               ))}
             </TableBody>
@@ -75,24 +75,13 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   );
 };
 
-const getStyles = stylesFactory(() => {
-  return {
-    wrapper: css`
-      position: relative;
-    `,
-    svg: css`
-      position: absolute;
-      top: 0;
-      left: 0;
-    `,
-    textBox: css`
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      padding: 10px;
-    `,
-    table: css`
-      minwidth: 100%;
-    `,
-  };
-});
+function getLastValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<string, number>): any {
+  let index = Number(fieldIndexMap.get(fieldName.trim()));
+  const list = dataFrame.fields[index].values;
+
+  if (list && list.length > 0) {
+    return list.get(list.length - 1);
+  }
+
+  return {};
+}

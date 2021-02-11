@@ -38,7 +38,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     const dataSources = dataSourceSrv.datasources;
     const dataSource = dataSources[Object.keys(dataSources)[0]];
     console.log('Hello world: ' + dataSource);
-    dataSource.doWrite([Number(pvValue)]).then((response: any) => {
+    dataSource.doWrite('random_walk:dt', [Number(pvValue)]).then((response: any) => {
       const responseData = response.data;
       console.log('responseData', responseData);
       setMessage(responseData['message']);
