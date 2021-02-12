@@ -13,6 +13,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
+import { format, fraction, number } from 'mathjs';
+
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
@@ -31,13 +33,19 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   fields.forEach(text => {
     let field = JSON.parse(text);
     fieldConfigList.push(field);
-    let width = parseFloat(field['width']);
+    let widthStr = field['width'];
+    let width = 0;
 
+    if (String(widthStr).includes('/')) {
+      let f = number(fraction(widthStr));
+      widthStr = format(f, 2);
+    }
+
+    width = parseFloat(widthStr);
     if (!isNaN(width)) {
       if (width < 1) {
         width *= 100;
       }
-
       widthList.push(width);
     } else {
       widthList.push(0);

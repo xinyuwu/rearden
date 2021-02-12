@@ -16,7 +16,9 @@
     "@grafana/toolkit": "latest",
     "@grafana/ui": "latest",
     "emotion": "10.0.27",
-    "@material-ui/core": "latest"
+    "@material-ui/core": "latest",
+    "@types/mathjs": "latest",
+    "mathjs": "latest"
   },
   "engines": {
     "node": ">=14"
