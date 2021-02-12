@@ -22,7 +22,35 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     },
   });
 
-  const fieldNames = options.pv_fields.split(',');
+  const fields = options.pv_fields;
+
+  const fieldConfigList: any[] = [];
+
+  let widthList: number[] = [];
+
+  fields.forEach(text => {
+    let field = JSON.parse(text);
+    fieldConfigList.push(field);
+    let width = parseFloat(field['width']);
+
+    if (!isNaN(width)) {
+      if (width < 1) {
+        width *= 100;
+      }
+
+      widthList.push(width);
+    } else {
+      widthList.push(0);
+    }
+  });
+
+  let totalWidth = widthList.reduce((a, b) => a + b, 0);
+
+  if (totalWidth === 0 || totalWidth >= 100) {
+    widthList.unshift(100 / (fieldConfigList.length + 1));
+  } else {
+    widthList.unshift(100 - totalWidth);
+  }
 
   const fieldIndexMap: Map<string, number> = new Map();
   if (data.series.length > 0) {
@@ -44,11 +72,16 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       <ThemeProvider theme={darkTheme}>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
+            <colgroup>
+              {widthList.map(width => (
+                <col style={{ width: width + '%' }} />
+              ))}
+            </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell>PV Name</TableCell>
-                {fieldNames.map(fieldName => (
-                  <TableCell align="right">{fieldName}</TableCell>
+                <TableCell align="center">PV Name</TableCell>
+                {fieldConfigList.map(field => (
+                  <TableCell align="center">{field['name']}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -57,12 +90,12 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
               {data.series.map(dataFrame => (
                 <TableRow key={dataFrame.refId}>
                   <TableCell align="center"> {dataFrame.refId} </TableCell>
-                  {fieldNames.map(fieldName => (
+                  {fieldConfigList.map(field => (
                     <TableCell
                       align="right"
                       className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
                     >
-                      {getLastValue(dataFrame, fieldName, fieldIndexMap)}
+                      {getLastValue(dataFrame, field, fieldIndexMap)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -75,12 +108,29 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   );
 };
 
-function getLastValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<string, number>): any {
+function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<string, number>): any {
+  let fieldName = '';
+  let precision = NaN;
+
+  if (typeof field === 'string') {
+    fieldName = field;
+  } else {
+    fieldName = field['name']!;
+    precision = Number(field['precision']);
+  }
+
   let index = Number(fieldIndexMap.get(fieldName.trim()));
   const list = dataFrame.fields[index].values;
 
   if (list && list.length > 0) {
-    return list.get(list.length - 1);
+    let val = list.get(list.length - 1);
+    let numVal = Number(val);
+
+    if (!isNaN(numVal) && !isNaN(precision)) {
+      return Number(numVal.toFixed(precision));
+    }
+
+    return val;
   }
 
   return {};
