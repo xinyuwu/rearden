@@ -24,12 +24,14 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+    const timeStamp = new Date();
     const promises = options.targets.map((query) =>
       this.doRequest(query).then((response) => {
         const frame = new MutableDataFrame({
           refId: query['pv_name'],
           fields: [
             { name: 'Time', type: FieldType.time },
+            { name: 'Value_Time', type: FieldType.time },
             { name: 'Value', type: FieldType.number },
             { name: 'alarm_status', type: FieldType.string },
             { name: 'alarm_severity', type: FieldType.string },
@@ -38,6 +40,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
 
         let response_data = response['data'];
         if (response_data) {
+          response_data['time'] = timeStamp;
           let pv_name: string = query['pv_name']!;
           let query_data = this.data.get(pv_name);
           if (query_data == null) {
@@ -49,6 +52,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
 
           query_data.forEach((point: any) => {
             frame.appendRow([
+              point['time'],
               new Date(point['time_stamp']),
               point['data'][0],
               point['alarm_status'],
