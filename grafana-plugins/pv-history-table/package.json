@@ -18,7 +18,7 @@
     "emotion": "10.0.27",
     "@material-ui/core": "latest",
     "@types/mathjs": "latest",
-    "mathjs": "latest"
+    "@types/d3": "latest"
   },
   "engines": {
     "node": ">=14"

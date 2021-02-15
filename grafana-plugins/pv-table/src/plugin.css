@@ -1,14 +1,18 @@
-.no_alarm {
+#pv-table-div {
+  overflow: scroll;
 }
 
-.invalid_alarm {
+#pv-table-div .no_alarm {
+}
+
+#pv-table-div .invalid_alarm {
   background-color: #546E7A;
 }
 
-.major_alarm {
+#pv-table-div .major_alarm {
   background-color: #B71C1C;
 }
 
-.minor_alarm {
+#pv-table-div .minor_alarm {
   background-color: #D81B60;
 }

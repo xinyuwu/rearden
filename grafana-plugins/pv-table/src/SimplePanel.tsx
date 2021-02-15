@@ -13,7 +13,7 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
-import { format, fraction, number } from 'mathjs';
+import * as math from 'mathjs';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -37,8 +37,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     let width = 0;
 
     if (String(widthStr).includes('/')) {
-      let f = number(fraction(widthStr));
-      widthStr = format(f, 2);
+      let f = math.number(math.fraction(widthStr));
+      widthStr = math.format(f, 2);
     }
 
     width = parseFloat(widthStr);
@@ -70,6 +70,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   return (
     <div
+      id="pv-table-div"
       className={cx(
         css`
           width: ${width}px;

@@ -13,6 +13,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
+import * as d3 from 'd3';
+
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
@@ -21,6 +23,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       type: 'dark',
     },
   });
+  const format = d3.utcFormat('%Y-%m-%dT%H:%M:%S');
 
   let timestampList: Date[] = [];
   const fieldIndexMap: Map<string, number> = new Map();
@@ -28,12 +31,15 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     let frame = data.series[0];
     for (let i = 0; i < frame.fields.length; i++) {
       fieldIndexMap.set(frame.fields[i].name!, i);
-      timestampList = frame.fields[i].values.toArray();
+      if (frame.fields[i].name === 'Time') {
+        timestampList = frame.fields[i].values.toArray();
+      }
     }
   }
 
   return (
     <div
+      id="pv-history-table-div"
       className={cx(
         css`
           width: ${width}px;
@@ -55,8 +61,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
             <TableBody>
               {timestampList.map((timestamp: Date, index: number) => (
-                <TableRow key={index}>
-                  <TableCell align="center">{timestamp}</TableCell>
+                <TableRow key={index.toString()}>
+                  <TableCell align="center">{format(timestamp)}</TableCell>
                   {data.series.map(frame => (
                     <TableCell
                       align="right"
