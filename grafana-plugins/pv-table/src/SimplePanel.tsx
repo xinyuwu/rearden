@@ -89,22 +89,20 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
               <TableRow>
                 <TableCell align="center">PV Name</TableCell>
                 {fieldConfigList.map(field => (
-                  <TableCell align="center">{field['name']}</TableCell>
+                  <TableCell align="center">{field['displayName'] ? field['displayName'] : field['name']}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
 
             <TableBody>
               {data.series.map(dataFrame => (
-                <TableRow key={dataFrame.refId}>
+                <TableRow
+                  key={dataFrame.refId}
+                  className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
+                >
                   <TableCell align="center"> {dataFrame.refId} </TableCell>
                   {fieldConfigList.map(field => (
-                    <TableCell
-                      align="right"
-                      className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
-                    >
-                      {getLastValue(dataFrame, field, fieldIndexMap)}
-                    </TableCell>
+                    <TableCell align="right">{getLastValue(dataFrame, field, fieldIndexMap)}</TableCell>
                   ))}
                 </TableRow>
               ))}
