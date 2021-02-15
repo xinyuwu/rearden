@@ -15,8 +15,6 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
   resolution: number;
   apiKey = '';
 
-  data: Map<string, any> = new Map();
-
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.resolution = instanceSettings.jsonData.resolution || 1000.0;
@@ -41,24 +39,13 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
         let response_data = response['data'];
         if (response_data) {
           response_data['time'] = timeStamp;
-          let pv_name: string = query['pv_name']!;
-          let query_data = this.data.get(pv_name);
-          if (query_data == null) {
-            query_data = [];
-          }
-
-          query_data.push(response_data);
-          this.data.set(pv_name, query_data);
-
-          query_data.forEach((point: any) => {
-            frame.appendRow([
-              point['time'],
-              new Date(point['time_stamp']),
-              point['data'][0],
-              point['alarm_status'],
-              point['alarm_severity'],
-            ]);
-          });
+          frame.appendRow([
+            timeStamp,
+            new Date(response_data['time_stamp']),
+            response_data['data'][0],
+            response_data['alarm_status'],
+            response_data['alarm_severity'],
+          ]);
         }
 
         return frame;
