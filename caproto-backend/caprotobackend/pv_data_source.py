@@ -1,6 +1,8 @@
 import logging
 import json
 
+import sys
+
 from caprotobackend.util import rest_request_handler, require_authentication
 
 from caproto.threading.client import Context
@@ -43,7 +45,8 @@ class PVDataSource:
                 if type(data) is bytes:
                     data_list.append(data.decode("utf-8"))
                 else:
-                    data_list.append(data)
+                    data_list = pv_value.data.tolist()
+                    break
 
         return {
             'data_type': pv_value.data_type.name,
