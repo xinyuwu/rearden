@@ -24,13 +24,33 @@ class PVDataSource:
         pv_name = request.match_info.get('pv_name')
         pv = self.ctx.get_pvs(pv_name)[0]
         pv_value = pv.read(data_type='time')
+        data_type = pv_value.data_type.name
         meta_data = pv_value.metadata
+        data_list = []
+        timestamp = 0
+        if 'ENUM' in data_type:
+            timestamp = meta_data.timestamp * 1000
+            control_pv = pv.read(data_type='control')
+            for data in pv_value.data:
+                enum_val = control_pv.metadata.enum_strings[data]
+                if type(enum_val) is bytes:
+                    data_list.append(enum_val.decode("utf-8"))
+                else:
+                    data_list.append(enum_val)
+        else:
+            timestamp = meta_data.stamp.as_datetime().timestamp() * 1000
+            for data in pv_value.data:
+                if type(data) is bytes:
+                    data_list.append(data.decode("utf-8"))
+                else:
+                    data_list.append(data)
+
         return {
             'data_type': pv_value.data_type.name,
-            'time_stamp': meta_data.stamp.as_datetime().timestamp() * 1000,
+            'time_stamp': timestamp,
             'alarm_status': caproto.AlarmStatus(meta_data.status).name,
             'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name,
-            'data': pv_value.data.tolist(),
+            'data': data_list,
         }
 
     @rest_request_handler

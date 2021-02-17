@@ -51,8 +51,6 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { options } = this.props;
     const jsonData = options.jsonData;
 
-    console.log('Hello apiKey');
-
     return (
       <div className="gf-form-group">
         <div className="gf-form">
@@ -62,7 +60,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
             inputWidth={20}
             onChange={this.onPathChange}
             value={jsonData.path || ''}
-            placeholder="json field returned to frontend"
+            placeholder="path to backend server"
           />
         </div>
 

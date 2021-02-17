@@ -14,11 +14,13 @@ import { MyQuery, MyDataSourceOptions } from './types';
 export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   resolution: number;
   apiKey = '';
+  path = '';
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.resolution = instanceSettings.jsonData.resolution || 1000.0;
     this.apiKey = instanceSettings.jsonData.apiKey || '';
+    this.path = instanceSettings.jsonData.path || 'http://localhost:8080/pvapi/pv/';
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -30,7 +32,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
           fields: [
             { name: 'Time', type: FieldType.time },
             { name: 'Value_Time', type: FieldType.time },
-            { name: 'Value', type: FieldType.number },
+            { name: 'Value', type: FieldType.other },
             { name: 'alarm_status', type: FieldType.string },
             { name: 'alarm_severity', type: FieldType.string },
           ],
@@ -59,7 +61,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
     console.log('doRequest');
     const result = await getBackendSrv().datasourceRequest({
       method: 'POST',
-      url: 'http://localhost:8080/pvapi/pv/write/' + pvName,
+      url: this.path + 'write/' + pvName,
       data: value,
       headers: { TOKEN: this.apiKey },
     });
@@ -76,7 +78,7 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
 
     const result = await getBackendSrv().datasourceRequest({
       method: 'GET',
-      url: 'http://localhost:8080/pvapi/pv/read/' + query['pv_name'],
+      url: this.path + 'read/' + query['pv_name'],
       params: query,
       headers: { TOKEN: this.apiKey },
     });
