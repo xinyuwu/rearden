@@ -20,7 +20,7 @@ export class QueryEditor extends PureComponent<Props> {
     const { point_name } = query;
 
     return (
-      <div className="gf-form" id="monica-query">
+      <div className="gf-form monica-query">
         <div className="form-field">
           <label className="gf-form-label width-8">Point Name</label>
           <input type="text" className="gf-form-input" value={point_name || ''} onChange={this.onPointNameChange} />

@@ -59,7 +59,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
             labelWidth={6}
             inputWidth={20}
             onChange={this.onPathChange}
-            value={jsonData.path || ''}
+            value={jsonData.path || 'http://localhost:8080/pvapi/pv/'}
             placeholder="path to backend server"
           />
         </div>
@@ -70,7 +70,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
               isConfigured={(jsonData && jsonData.apiKey !== '') as boolean}
               value={jsonData.apiKey || ''}
               label="API Key"
-              placeholder="secure json field (backend only)"
+              placeholder="secure token to backend"
               labelWidth={6}
               inputWidth={20}
               onReset={this.onResetAPIKey}

@@ -13,15 +13,57 @@ import {
 import { MyQuery, MyDataSourceOptions } from './types';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+  apiKey = '';
+  path = '';
+
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
+    this.apiKey = instanceSettings.jsonData.apiKey || '';
+    this.path = instanceSettings.jsonData.path || 'http://localhost:8080/monica/points';
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    const { range } = options;
-
     const parser = d3.utcParse('%Y-%m-%d %H:%M:%S.%L');
+    let frames: MutableDataFrame[] = [];
 
+    if (options.maxDataPoints === 1) {
+      let pvNames = options.targets.map(query => {
+        return query['point_name'];
+      });
+
+      let promise = this.doLatestValueRequest(pvNames).then((response: any) => {
+        let response_data = response['data']['pointData'];
+
+        for (let point of response_data) {
+          const frame = new MutableDataFrame({
+            refId: point['pointName'],
+            fields: [
+              { name: 'Time', type: FieldType.time },
+              { name: 'Value', type: FieldType.other },
+              { name: 'alarm_status', type: FieldType.string },
+              { name: 'alarm_severity', type: FieldType.string },
+            ],
+          });
+          let alarm_status = 'no_alarm';
+          let alarm_severity = 'no_alarm';
+          if (!point['errorState']) {
+            alarm_status = 'alarm';
+            alarm_severity = 'alarm';
+          }
+
+          frame.appendRow([parser(point['time']), point['value'], alarm_status, alarm_severity]);
+          frames.push(frame);
+        }
+
+        return frames;
+      });
+
+      return promise.then(data => ({
+        data,
+      }));
+    }
+
+    const { range } = options;
     const promises = options.targets.map(query =>
       this.doHistoryRequest(query, range!).then(response => {
         const frame = new MutableDataFrame({
@@ -50,30 +92,32 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       })
     );
 
-    return Promise.all(promises).then(data => ({ data }));
+    return Promise.all(promises).then(data => ({
+      data,
+    }));
   }
 
-  // async doLatestValueRequest(pvNames: string[]) {
-  //   console.log('doRequest ' + query['pv_name']);
-  //
-  //   if (pvNames === null || pvNames.length == 0) {
-  //     return {};
-  //   }
-  //
-  //   let queryData = {
-  //     "type": "get",
-  //     "points": pvNames
-  //   }
-  //   const result = await getBackendSrv().datasourceRequest({
-  //     method: 'POST',
-  //     url: 'http://localhost:8080/monica/points',
-  //     data: queryData,
-  //   });
-  //
-  //   return result;
-  // }
+  async doLatestValueRequest(pvNames: Array<string | undefined>) {
+    console.log('doLatestValueRequest ' + pvNames.length);
 
-  async doHistoryRequest(query: MyQuery, range: any) {
+    if (pvNames === null || pvNames.length === 0) {
+      return {};
+    }
+
+    let queryData = {
+      type: 'get',
+      points: pvNames,
+    };
+
+    const result = await getBackendSrv().datasourceRequest({
+      method: 'POST',
+      url: this.path,
+      data: queryData,
+    });
+    return result;
+  }
+
+  async doHistoryRequest(query: MyQuery, range: any): Promise<any> {
     console.log('doHistoryRequest ' + query['point_name']);
 
     if (query['point_name'] === '') {
@@ -93,7 +137,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     const result = await getBackendSrv().datasourceRequest({
       method: 'POST',
-      url: 'http://localhost:8080/monica/points',
+      url: this.path,
       data: queryData,
     });
 
