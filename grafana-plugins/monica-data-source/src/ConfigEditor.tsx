@@ -1,10 +1,7 @@
 import React, { ChangeEvent, PureComponent } from 'react';
-import { LegacyForms } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions } from './types';
 import './plugin.css';
-
-const { FormField } = LegacyForms;
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
 
@@ -46,14 +43,15 @@ export class ConfigEditor extends PureComponent<Props, State> {
     return (
       <div className="gf-form-group monica-query">
         <div className="gf-form">
-          <FormField
-            label="Path"
-            labelWidth={6}
-            inputWidth={50}
-            onChange={this.onPathChange}
-            value={jsonData.path || 'http://localhost:8080/monica/points'}
-            placeholder="path to backend server"
-          />
+          <div className="form-field">
+            <label className="gf-form-label width-10">Path to backend server</label>
+            <input
+              type="text"
+              className="gf-form-input"
+              value={jsonData.path || 'http://localhost:8080/monica/points'}
+              onChange={this.onPathChange}
+            />
+          </div>
         </div>
       </div>
     );
