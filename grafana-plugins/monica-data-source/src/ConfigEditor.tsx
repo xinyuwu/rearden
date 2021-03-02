@@ -4,7 +4,7 @@ import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions } from './types';
 import './plugin.css';
 
-const { SecretFormField, FormField } = LegacyForms;
+const { FormField } = LegacyForms;
 
 interface Props extends DataSourcePluginOptionsEditorProps<MyDataSourceOptions> {}
 
@@ -54,20 +54,6 @@ export class ConfigEditor extends PureComponent<Props, State> {
             value={jsonData.path || 'http://localhost:8080/monica/points'}
             placeholder="path to backend server"
           />
-        </div>
-
-        <div className="gf-form-inline monica-query">
-          <div className="gf-form">
-            <SecretFormField
-              isConfigured={(jsonData && jsonData.apiKey !== '') as boolean}
-              value={jsonData.apiKey || ''}
-              label="API Key"
-              placeholder="secure token to backend"
-              labelWidth={6}
-              onReset={this.onResetAPIKey}
-              onChange={this.onAPIKeyChange}
-            />
-          </div>
         </div>
       </div>
     );
