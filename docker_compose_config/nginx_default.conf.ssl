@@ -1,0 +1,22 @@
+server {
+    listen 443 ssl;
+    ssl_certificate /etc/nginx/conf.d/nginx_cert.crt;
+    ssl_certificate_key /etc/nginx/conf.d/nginx_cert.key;
+    ssl_session_cache builtin:1000 shared:SSL:10m;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+    ssl_prefer_server_ciphers on;
+
+    location / {
+        proxy_pass https://monview-pks.atnf.csiro.au/;
+    }
+
+    location /pvapi/ {
+        proxy_pass http://mtos11.atnf.csiro.au:7654/pvapi/;
+    }
+
+    location /monica/ {
+        proxy_pass http://orion.atnf.csiro.au:8111/;
+    }
+
+}

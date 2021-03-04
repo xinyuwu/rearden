@@ -107,3 +107,5 @@ venv
 __pycache__
 .idea
 
+.DS_Store
+jest.config.js

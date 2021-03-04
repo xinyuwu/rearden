@@ -96,5 +96,5 @@ function getValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<st
     return val;
   }
 
-  return {};
+  return '';
 }
