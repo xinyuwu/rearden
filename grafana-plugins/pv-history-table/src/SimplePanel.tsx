@@ -49,7 +49,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     >
       <ThemeProvider theme={darkTheme}>
         <TableContainer component={Paper}>
-          <Table aria-label="simple table">
+          <Table stickyHeader aria-label="simple table">
             <TableHead>
               <TableRow>
                 <TableCell align="center">Timestamp</TableCell>
