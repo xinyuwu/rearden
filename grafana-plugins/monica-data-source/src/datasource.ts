@@ -13,13 +13,11 @@ import {
 import { MyQuery, MyDataSourceOptions } from './types';
 
 export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  apiKey = '';
   path = '';
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
-    this.apiKey = instanceSettings.jsonData.apiKey || '';
-    this.path = instanceSettings.jsonData.path || 'http://localhost:8080/monica/points';
+    this.path = '/api/datasources/proxy/' + this.id + '/points';
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {

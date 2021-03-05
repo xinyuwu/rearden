@@ -32,16 +32,16 @@ services:
       - ./grafana-plugins:/grafana-plugins
       - grafana-storage:/var/lib/grafana
 
-  nginx:
-    build:
-      context: .
-      dockerfile: ./Dockerfile_nginx
-    depends_on:
-      - grafana
-      - caproto_server
-    ports:
-      - "8080:8080"
-      - "443:443"
+  # nginx:
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile_nginx
+  #   depends_on:
+  #     - grafana
+  #     - caproto_server
+  #   ports:
+  #     - "8080:8080"
+  #     - "443:443"
 
 volumes:
     grafana-storage:

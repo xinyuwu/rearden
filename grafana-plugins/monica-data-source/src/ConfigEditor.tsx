@@ -9,12 +9,13 @@ interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
   onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
+    let { onOptionsChange, options } = this.props;
+    const url = event.target.value;
     const jsonData = {
       ...options.jsonData,
       path: event.target.value,
     };
-    onOptionsChange({ ...options, jsonData });
+    onOptionsChange({ ...options, jsonData, url });
   };
 
   // Secure field (only sent to the backend)
@@ -37,6 +38,8 @@ export class ConfigEditor extends PureComponent<Props, State> {
   };
 
   render() {
+    console.log('ConfigEditor render');
+
     const { options } = this.props;
     const jsonData = options.jsonData;
 
