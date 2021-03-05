@@ -37,6 +37,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     }
   }
 
+  let colWidth = 100 / (data.series.length + 1);
+
   return (
     <div
       id="pv-history-table-div"
@@ -48,13 +50,17 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       )}
     >
       <ThemeProvider theme={darkTheme}>
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} id="table-container">
           <Table stickyHeader aria-label="simple table">
             <TableHead>
               <TableRow>
-                <TableCell align="center">Timestamp</TableCell>
+                <TableCell align="center" style={{ width: colWidth + '%' }}>
+                  Timestamp
+                </TableCell>
                 {data.series.map(dataFrame => (
-                  <TableCell align="center">{dataFrame.refId}</TableCell>
+                  <TableCell align="center" style={{ width: colWidth + '%' }}>
+                    {dataFrame.refId}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>

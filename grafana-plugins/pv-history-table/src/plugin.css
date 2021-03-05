@@ -1,5 +1,9 @@
-#pv-history-table-div {
-  overflow: scroll;
+#pv-history-table-div #table-container {
+  max-height: calc(100% - 25px);
+}
+
+#pv-history-table-div th {
+  word-break: break-word;
 }
 
 #pv-history-table-div .alarm {
