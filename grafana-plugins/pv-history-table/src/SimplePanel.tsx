@@ -4,6 +4,7 @@ import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 
+import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,7 +12,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
 
 import * as d3 from 'd3';
 
@@ -23,6 +24,16 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       type: 'dark',
     },
   });
+
+  const tooltipStyles = makeStyles({
+    tooltip: {
+      fontSize: 14,
+      background: 'white',
+      color: 'black',
+    },
+  });
+  const tooltipClasses = tooltipStyles();
+
   const format = d3.utcFormat('%Y-%m-%dT%H:%M:%S');
 
   let timestampList: Date[] = [];
@@ -55,12 +66,14 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
             <TableHead>
               <TableRow>
                 <TableCell align="center" style={{ width: colWidth + '%' }}>
-                  Timestamp
+                  Timestamp (UTC)
                 </TableCell>
                 {data.series.map(dataFrame => (
-                  <TableCell align="center" style={{ width: colWidth + '%' }}>
-                    {dataFrame.refId}
-                  </TableCell>
+                  <Tooltip title={dataFrame.refId!} placement="top" classes={tooltipClasses}>
+                    <TableCell align="center" style={{ width: colWidth + '%' }}>
+                      {dataFrame.refId!.split('.').pop()}
+                    </TableCell>
+                  </Tooltip>
                 ))}
               </TableRow>
             </TableHead>

@@ -4,6 +4,7 @@ import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 
+import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -11,7 +12,7 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
 
 import * as math from 'mathjs';
 
@@ -68,6 +69,15 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     }
   }
 
+  const tooltipStyles = makeStyles({
+    tooltip: {
+      fontSize: 14,
+      background: 'white',
+      color: 'black',
+    },
+  });
+  const tooltipClasses = tooltipStyles();
+
   return (
     <div
       id="pv-table-div"
@@ -101,7 +111,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                   key={dataFrame.refId}
                   className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
                 >
-                  <TableCell align="center"> {dataFrame.refId} </TableCell>
+                  <Tooltip title={dataFrame.refId!} placement="top" classes={tooltipClasses}>
+                    <TableCell align="center" className="header_column">
+                      {dataFrame.refId!.split('.').pop()}
+                    </TableCell>
+                  </Tooltip>
                   {fieldConfigList.map(field => (
                     <TableCell align="right">{getLastValue(dataFrame, field, fieldIndexMap)}</TableCell>
                   ))}
