@@ -1,6 +1,6 @@
 {
-  "name": "csiro-pv-data-source",
-  "version": "1.0.0",
+  "name": "pv-data-source",
+  "version": "1.1.0",
   "description": "data source to access realtime pv value from a PV server via REST API",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
