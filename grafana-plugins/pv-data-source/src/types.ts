@@ -5,8 +5,6 @@ import { DataQuery, DataSourceJsonData } from '@grafana/data';
  */
 export interface MyDataSourceOptions extends DataSourceJsonData {
   path?: string;
-  resolution?: number;
-  apiKey?: string;
 }
 
 export interface MyQuery extends DataQuery {
@@ -16,3 +14,7 @@ export interface MyQuery extends DataQuery {
 export const defaultQuery: Partial<MyQuery> = {
   pv_name: '',
 };
+
+export interface MySecureJsonData {
+  apiKey?: string;
+}

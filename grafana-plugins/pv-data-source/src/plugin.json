@@ -1,7 +1,7 @@
 {
   "type": "datasource",
-  "name": "Xinyu DataSource",
-  "id": "csiro-xinyu-data-source",
+  "name": "PV DataSource",
+  "id": "csiro-pv-data-source",
   "metrics": true,
   "info": {
     "description": "Xinyu's first DataSource",
@@ -31,5 +31,15 @@
   "dependencies": {
     "grafanaVersion": "6.5.x",
     "plugins": []
-  }
+  },
+  "routes": [
+    {
+      "headers": [
+        {
+          "name": "TOKEN",
+          "content": "{{ .SecureJsonData.apiKey }}"
+        }
+      ]
+    }
+  ]
 }

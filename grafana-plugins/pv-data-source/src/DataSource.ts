@@ -11,16 +11,12 @@ import {
 
 import { MyQuery, MyDataSourceOptions } from './types';
 
-export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
-  resolution: number;
-  apiKey = '';
+export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   path = '';
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
-    this.resolution = instanceSettings.jsonData.resolution || 1000.0;
-    this.apiKey = instanceSettings.jsonData.apiKey || '';
-    this.path = instanceSettings.jsonData.path || 'http://localhost:8080/pvapi/pv/';
+    this.path = '/api/datasources/proxy/' + this.id;
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
@@ -63,9 +59,10 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
       method: 'POST',
       url: this.path + 'write/' + pvName,
       data: value,
-      headers: { TOKEN: this.apiKey },
+      headers: { TOKEN: '' },
     });
 
+    // headers: { TOKEN: this.apiKey },
     return result;
   }
 
@@ -78,9 +75,8 @@ export class XinyuDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions>
 
     const result = await getBackendSrv().datasourceRequest({
       method: 'GET',
-      url: this.path + 'read/' + query['pv_name'],
+      url: this.path + '/read/' + query['pv_name'],
       params: query,
-      headers: { TOKEN: this.apiKey },
     });
 
     return result;

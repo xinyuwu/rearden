@@ -1,7 +1,7 @@
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { MyDataSourceOptions } from './types';
+import { MyDataSourceOptions, MySecureJsonData } from './types';
 
 const { SecretFormField, FormField } = LegacyForms;
 
@@ -11,45 +11,40 @@ interface State {}
 
 export class ConfigEditor extends PureComponent<Props, State> {
   onPathChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
+    let { onOptionsChange, options } = this.props;
+    const url = event.target.value;
     const jsonData = {
       ...options.jsonData,
       path: event.target.value,
     };
-    onOptionsChange({ ...options, jsonData });
+    onOptionsChange({ ...options, jsonData, url });
   };
 
   // Secure field (only sent to the backend)
   onAPIKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      apiKey: event.target.value,
-    };
-    onOptionsChange({ ...options, jsonData });
+    onOptionsChange({
+      ...options,
+      secureJsonData: {
+        apiKey: event.target.value,
+      },
+    });
   };
 
   onResetAPIKey = () => {
     const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      apiKey: '',
-    };
-    onOptionsChange({ ...options, jsonData });
-  };
-
-  onResolutionChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { onOptionsChange, options } = this.props;
-    const jsonData = {
-      ...options.jsonData,
-      resolution: parseFloat(event.target.value),
-    };
-    onOptionsChange({ ...options, jsonData });
+    onOptionsChange({
+      ...options,
+      secureJsonData: {
+        apiKey: '',
+      },
+    });
   };
 
   render() {
     const { options } = this.props;
-    const jsonData = options.jsonData;
+    const { jsonData, secureJsonFields } = options;
+    const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
 
     return (
       <div className="gf-form-group">
@@ -59,7 +54,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
             labelWidth={6}
             inputWidth={20}
             onChange={this.onPathChange}
-            value={jsonData.path || 'http://localhost:8080/pvapi/pv/'}
+            value={jsonData.path || ''}
             placeholder="path to backend server"
           />
         </div>
@@ -67,24 +62,16 @@ export class ConfigEditor extends PureComponent<Props, State> {
         <div className="gf-form-inline">
           <div className="gf-form">
             <SecretFormField
-              isConfigured={(jsonData && jsonData.apiKey !== '') as boolean}
-              value={jsonData.apiKey || ''}
+              isConfigured={(secureJsonFields && secureJsonFields.apiKey) as boolean}
+              value={secureJsonData.apiKey || ''}
               label="API Key"
-              placeholder="secure token to backend"
+              placeholder="secure json field (backend only)"
               labelWidth={6}
               inputWidth={20}
               onReset={this.onResetAPIKey}
               onChange={this.onAPIKeyChange}
             />
           </div>
-        </div>
-        <div className="gf-form">
-          <FormField
-            label="Resolution"
-            onChange={this.onResolutionChange}
-            value={jsonData.resolution || ''}
-            placeholder="Enter a number"
-          />
         </div>
       </div>
     );

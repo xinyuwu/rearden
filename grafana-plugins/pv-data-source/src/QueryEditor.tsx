@@ -3,12 +3,12 @@ import defaults from 'lodash/defaults';
 import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms } from '@grafana/ui';
 import { QueryEditorProps } from '@grafana/data';
-import { XinyuDataSource } from './DataSource';
+import { DataSource } from './DataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 
 const { FormField } = LegacyForms;
 
-type Props = QueryEditorProps<XinyuDataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
   onPvNameChange = (event: ChangeEvent<HTMLInputElement>) => {
