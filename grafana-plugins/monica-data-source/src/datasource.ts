@@ -1,4 +1,5 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, getTemplateSrv } from '@grafana/runtime';
+
 import * as d3 from 'd3';
 
 import {
@@ -21,12 +22,19 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
+    const templateSrv = getTemplateSrv();
+    const variables = templateSrv.getVariables();
+    const scopedVars = options.scopedVars;
+
+    console.log('variables ' + variables);
+
     const parser = d3.utcParse('%Y-%m-%d %H:%M:%S.%L');
     let frames: MutableDataFrame[] = [];
 
     if (options.maxDataPoints === 1) {
       let pvNames = options.targets.map(query => {
-        return query['point_name'];
+        const name = templateSrv.replace(query['point_name'], scopedVars);
+        return name;
       });
 
       let promise = this.doLatestValueRequest(pvNames).then((response: any) => {
