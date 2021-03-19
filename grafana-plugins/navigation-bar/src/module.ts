@@ -5,36 +5,21 @@ import { SimplePanel } from './SimplePanel';
 export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions(builder => {
   return builder
     .addTextInput({
-      path: 'text',
-      name: 'Simple text option',
-      description: 'Description of panel option',
-      defaultValue: 'Default value of text input option',
+      path: 'var_name',
+      name: 'Dashboard Variable',
+      description: 'Name of Dashboard Variable',
+      defaultValue: 'healthType',
     })
-    .addBooleanSwitch({
-      path: 'showSeriesCount',
-      name: 'Show series counter',
-      defaultValue: false,
+    .addTextInput({
+      path: 'field_name',
+      name: 'Value corresponding to the field name to display',
+      description: 'Name of field name',
+      defaultValue: 'alarm_status',
     })
-    .addRadio({
-      path: 'seriesCountSize',
-      defaultValue: 'sm',
-      name: 'Series counter size',
-      settings: {
-        options: [
-          {
-            value: 'sm',
-            label: 'Small',
-          },
-          {
-            value: 'md',
-            label: 'Medium',
-          },
-          {
-            value: 'lg',
-            label: 'Large',
-          },
-        ],
-      },
-      showIf: config => config.showSeriesCount,
+    .addStringArray({
+      path: 'field_mapping',
+      name: 'refId to dashboard variable value mapping',
+      description: '',
+      defaultValue: ['Health:health'],
     });
 });

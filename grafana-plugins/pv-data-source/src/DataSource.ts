@@ -24,7 +24,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map((query) =>
       this.doRequest(query).then((response) => {
         const frame = new MutableDataFrame({
-          refId: query['pv_name'],
+          name: query['pv_name'],
+          refId: query['refId'],
           fields: [
             { name: 'Time', type: FieldType.time },
             { name: 'Value_Time', type: FieldType.time },

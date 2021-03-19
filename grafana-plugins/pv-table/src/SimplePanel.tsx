@@ -108,12 +108,12 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
             <TableBody>
               {data.series.map(dataFrame => (
                 <TableRow
-                  key={dataFrame.refId}
+                  key={dataFrame.name}
                   className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
                 >
-                  <Tooltip title={dataFrame.refId!} placement="top" classes={tooltipClasses}>
+                  <Tooltip title={dataFrame.name!} placement="top" classes={tooltipClasses}>
                     <TableCell align="center" className="header_column">
-                      {dataFrame.refId!.split('.').pop()}
+                      {dataFrame.name!.split('.').pop()}
                     </TableCell>
                   </Tooltip>
                   {fieldConfigList.map(field => (

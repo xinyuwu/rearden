@@ -69,9 +69,9 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                   Timestamp (UTC)
                 </TableCell>
                 {data.series.map(dataFrame => (
-                  <Tooltip title={dataFrame.refId!} placement="top" classes={tooltipClasses}>
+                  <Tooltip title={dataFrame.name!} placement="top" classes={tooltipClasses}>
                     <TableCell align="center" style={{ width: colWidth + '%' }}>
-                      {dataFrame.refId!.split('.').pop()}
+                      {dataFrame.name!.split('.').pop()}
                     </TableCell>
                   </Tooltip>
                 ))}

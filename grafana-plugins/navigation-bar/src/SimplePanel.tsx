@@ -1,7 +1,7 @@
 import React from 'react';
 import './plugin.css';
 
-import { PanelProps } from '@grafana/data';
+import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
@@ -16,11 +16,29 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
 
-  async function changeVariable() {
+  const var_name = options.var_name;
+  const field_name = options.field_name;
+  const field_mapping = new Map();
+
+  for (let field of options.field_mapping) {
+    if (field) {
+      let res = field.split(':');
+      if (res && res.length === 2) {
+        field_mapping.set(res[0].trim(), res[1].trim());
+      }
+    }
+  }
+
+  function changeVariable(event: any, val: string) {
+    let newVal = field_mapping.get(val);
+    if (!newVal) {
+      newVal = val.toLowerCase();
+    }
+
+    let query: any = {};
+    query[var_name] = newVal;
     getLocationSrv().update({
-      query: {
-        'var-xVar': '36m',
-      },
+      query: query,
       partial: true,
       replace: true,
     });
@@ -36,23 +54,21 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <Grid className="navigation_bar" container spacing={3}>
-        <Grid container item spacing={1} alignItems="center">
-          <Grid item xs>
-            <label className="nav_title">Health</label>
+      <Grid className="navigation_bar" container spacing={3} direction="column">
+        {data.series.map(dataFrame => (
+          <Grid container item spacing={1} alignItems="center" direction="row">
+            <Grid item xs>
+              <label className="nav_title">{dataFrame.refId}</label>
+            </Grid>
+            <Grid item xs>
+              <Chip
+                className={['nav_item', getValue(dataFrame, 'alarm_severity').toLowerCase()].join(' ')}
+                label={getValue(dataFrame, field_name)}
+                onClick={e => changeVariable(e, dataFrame.refId!)}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs>
-            <Chip className="nav_item" label="OK" onClick={changeVariable} />
-          </Grid>
-        </Grid>
-        <Grid container item spacing={1} alignItems="center">
-          <Grid item xs>
-            <label className="nav_title">Config</label>
-          </Grid>
-          <Grid item xs>
-            <Chip className="nav_item" label="OK" onClick={changeVariable} />
-          </Grid>
-        </Grid>
+        ))}
       </Grid>
     </div>
   );
@@ -76,3 +92,16 @@ const getStyles = stylesFactory(() => {
     `,
   };
 });
+
+function getValue(dataFrame: DataFrame, fieldName: string): string {
+  for (let field of dataFrame.fields) {
+    if (field['name'] === fieldName) {
+      const list = field.values;
+      if (list && list.length > 0) {
+        let val = list.get(list.length - 1);
+        return val!;
+      }
+    }
+  }
+  return '';
+}

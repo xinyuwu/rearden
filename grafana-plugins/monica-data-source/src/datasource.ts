@@ -42,7 +42,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
         for (let point of response_data) {
           const frame = new MutableDataFrame({
-            refId: point['pointName'],
+            refId: point['refId'],
+            name: point['pointName'],
             fields: [
               { name: 'Time', type: FieldType.time },
               { name: 'Value', type: FieldType.other },
@@ -73,7 +74,8 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const promises = options.targets.map(query =>
       this.doHistoryRequest(query, range!).then(response => {
         const frame = new MutableDataFrame({
-          refId: query['point_name'],
+          name: query['point_name'],
+          refId: query['refId'],
           fields: [
             { name: 'Time', type: FieldType.time },
             { name: 'Value', type: FieldType.other },
