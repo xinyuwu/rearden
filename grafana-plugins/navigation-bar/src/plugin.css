@@ -1,0 +1,34 @@
+.navigation_bar {
+  overflow: scroll;
+}
+
+.navigation_bar .nav_title {
+  width: 100%;
+}
+
+.navigation_bar .nav_item {
+  width: 100%;
+}
+
+.navigation_bar .header_column {
+    background-color: #303030;
+}
+
+.navigation_bar .alarm {
+  background-color: #B71C1C;
+}
+
+.navigation_bar .no_alarm {
+}
+
+.navigation_bar .invalid_alarm {
+  background-color: #546E7A;
+}
+
+.navigation_bar .major_alarm {
+  background-color: #B71C1C;
+}
+
+.navigation_bar .minor_alarm {
+  background-color: #D81B60;
+}
