@@ -75,7 +75,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
     const { range } = options;
     const promises = options.targets.map(query =>
-      this.doHistoryRequest(query, range!).then(response => {
+      this.doHistoryRequest(query, range!, options['maxDataPoints']).then(response => {
         const frame = new MutableDataFrame({
           name: query['point_name'],
           refId: query['refId'],
@@ -129,7 +129,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return result;
   }
 
-  async doHistoryRequest(query: MyQuery, range: any): Promise<any> {
+  async doHistoryRequest(query: MyQuery, range: any, maxDataPoints: number | undefined): Promise<any> {
     console.log('doHistoryRequest ' + query['point_name']);
 
     if (query['point_name'] === '') {
@@ -140,12 +140,16 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     const from = new Date(range!.from.valueOf());
     const to = new Date(range!.to.valueOf());
 
-    let queryData = {
-      type: 'between',
-      start: format(from),
-      end: format(to),
-      points: [query['point_name']],
-    };
+    let queryData: any = {};
+
+    queryData.type = 'between';
+    queryData.start = format(from);
+    queryData.end = format(to);
+    queryData.points = [query['point_name']];
+
+    if (maxDataPoints) {
+      queryData.maxCount = maxDataPoints.toString();
+    }
 
     const result = await getBackendSrv().datasourceRequest({
       method: 'POST',
