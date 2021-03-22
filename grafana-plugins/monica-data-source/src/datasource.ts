@@ -32,8 +32,10 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     let frames: MutableDataFrame[] = [];
 
     if (options.maxDataPoints === 1) {
+      let refIdMap = new Map();
       let pvNames = options.targets.map(query => {
         const name = templateSrv.replace(query['point_name'], scopedVars);
+        refIdMap.set(name, query['refId']);
         return name;
       });
 
@@ -42,13 +44,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
         for (let point of response_data) {
           const frame = new MutableDataFrame({
-            refId: point['refId'],
+            refId: refIdMap.get(point['pointName']),
             name: point['pointName'],
             fields: [
               { name: 'Time', type: FieldType.time },
               { name: 'Value', type: FieldType.other },
               { name: 'alarm_status', type: FieldType.string },
               { name: 'alarm_severity', type: FieldType.string },
+              { name: 'raw_value', type: FieldType.string },
             ],
           });
           let alarm_status = 'no_alarm';
@@ -58,7 +61,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             alarm_severity = 'alarm';
           }
 
-          frame.appendRow([parser(point['time']), point['value'], alarm_status, alarm_severity]);
+          frame.appendRow([parser(point['time']), point['value'], alarm_status, alarm_severity, JSON.stringify(point)]);
           frames.push(frame);
         }
 
@@ -81,6 +84,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             { name: 'Value', type: FieldType.other },
             { name: 'alarm_status', type: FieldType.string },
             { name: 'alarm_severity', type: FieldType.string },
+            { name: 'raw_value', type: FieldType.string },
           ],
         });
 
@@ -93,7 +97,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             alarm_severity = 'alarm';
           }
 
-          frame.appendRow([parser(point['time']), point['value'], alarm_status, alarm_severity]);
+          frame.appendRow([parser(point['time']), point['value'], alarm_status, alarm_severity, JSON.stringify(point)]);
         }
 
         return frame;

@@ -3,6 +3,7 @@ import './plugin.css';
 import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
+import { config } from '@grafana/runtime';
 
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
@@ -12,18 +13,27 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import * as math from 'mathjs';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  let isDark = config.theme.isDark;
   const darkTheme = createMuiTheme({
     palette: {
       type: 'dark',
     },
   });
+
+  const lightTheme = createMuiTheme({
+    palette: {
+      type: 'light',
+    },
+  });
+
+  let theme = isDark ? darkTheme : lightTheme;
 
   const fields = options.pv_fields;
 
@@ -69,15 +79,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     }
   }
 
-  const tooltipStyles = makeStyles({
-    tooltip: {
-      fontSize: 14,
-      background: 'white',
-      color: 'black',
-    },
-  });
-  const tooltipClasses = tooltipStyles();
-
   return (
     <div
       id="pv-table-div"
@@ -88,7 +89,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <colgroup>
@@ -111,13 +112,15 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                   key={dataFrame.name}
                   className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
                 >
-                  <Tooltip title={dataFrame.name!} placement="top" classes={tooltipClasses}>
+                  <Tooltip title={dataFrame.name!} placement="top">
                     <TableCell align="center" className="header_column">
-                      {dataFrame.name!.split('.').pop()}
+                      {dataFrame['refId']}
                     </TableCell>
                   </Tooltip>
                   {fieldConfigList.map(field => (
-                    <TableCell align="right">{getLastValue(dataFrame, field, fieldIndexMap)}</TableCell>
+                    <Tooltip title={getLastValue(dataFrame, 'raw_value', fieldIndexMap)} placement="top">
+                      <TableCell align="right">{getLastValue(dataFrame, field, fieldIndexMap)}</TableCell>
+                    </Tooltip>
                   ))}
                 </TableRow>
               ))}

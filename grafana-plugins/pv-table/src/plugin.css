@@ -2,10 +2,6 @@
   overflow: scroll;
 }
 
-#pv-table-div .header_column {
-    background-color: #303030;
-}
-
 #pv-table-div .alarm {
   background-color: #B71C1C;
 }

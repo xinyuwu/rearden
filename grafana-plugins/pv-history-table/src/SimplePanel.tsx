@@ -3,6 +3,7 @@ import './plugin.css';
 import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
+import { config } from '@grafana/runtime';
 
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
@@ -12,27 +13,27 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 
 import * as d3 from 'd3';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  let isDark = config.theme.isDark;
   const darkTheme = createMuiTheme({
     palette: {
       type: 'dark',
     },
   });
 
-  const tooltipStyles = makeStyles({
-    tooltip: {
-      fontSize: 14,
-      background: 'white',
-      color: 'black',
+  const lightTheme = createMuiTheme({
+    palette: {
+      type: 'light',
     },
   });
-  const tooltipClasses = tooltipStyles();
+
+  let theme = isDark ? darkTheme : lightTheme;
 
   const format = d3.utcFormat('%Y-%m-%dT%H:%M:%S');
 
@@ -60,7 +61,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         `
       )}
     >
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <TableContainer component={Paper} id="table-container">
           <Table stickyHeader aria-label="simple table">
             <TableHead>
@@ -69,9 +70,9 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                   Timestamp (UTC)
                 </TableCell>
                 {data.series.map(dataFrame => (
-                  <Tooltip title={dataFrame.name!} placement="top" classes={tooltipClasses}>
+                  <Tooltip title={dataFrame.name!} placement="top">
                     <TableCell align="center" style={{ width: colWidth + '%' }}>
-                      {dataFrame.name!.split('.').pop()}
+                      {dataFrame['refId']}
                     </TableCell>
                   </Tooltip>
                 ))}
@@ -83,12 +84,14 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                 <TableRow key={index.toString()}>
                   <TableCell align="center">{format(timestamp)}</TableCell>
                   {data.series.map(frame => (
-                    <TableCell
-                      align="right"
-                      className={getValue(frame, 'alarm_severity', fieldIndexMap, index).toLowerCase()}
-                    >
-                      {getValue(frame, 'Value', fieldIndexMap, index)}
-                    </TableCell>
+                    <Tooltip title={getValue(frame, 'raw_value', fieldIndexMap, index)} placement="top">
+                      <TableCell
+                        align="right"
+                        className={getValue(frame, 'alarm_severity', fieldIndexMap, index).toLowerCase()}
+                      >
+                        {getValue(frame, 'Value', fieldIndexMap, index)}
+                      </TableCell>
+                    </Tooltip>
                   ))}
                 </TableRow>
               ))}

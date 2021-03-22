@@ -32,6 +32,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             { name: 'Value', type: FieldType.other },
             { name: 'alarm_status', type: FieldType.string },
             { name: 'alarm_severity', type: FieldType.string },
+            { name: 'raw_value', type: FieldType.string },
           ],
         });
 
@@ -44,6 +45,7 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
             response_data['data'][0],
             response_data['alarm_status'],
             response_data['alarm_severity'],
+            JSON.stringify(response_data),
           ]);
         }
 
