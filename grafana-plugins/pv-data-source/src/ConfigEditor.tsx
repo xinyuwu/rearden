@@ -2,6 +2,7 @@ import React, { ChangeEvent, PureComponent } from 'react';
 import { LegacyForms } from '@grafana/ui';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { MyDataSourceOptions, MySecureJsonData } from './types';
+import './plugin.css';
 
 const { SecretFormField, FormField } = LegacyForms;
 
@@ -47,7 +48,7 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
 
     return (
-      <div className="gf-form-group">
+      <div className="gf-form-group pv-query">
         <div className="gf-form">
           <FormField
             label="Path"

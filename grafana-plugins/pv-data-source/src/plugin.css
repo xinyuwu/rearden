@@ -1,0 +1,12 @@
+
+.pv-query .gf-form{
+  flex: 100%;
+}
+
+.pv-query .form-field{
+  flex: 100%;
+}
+
+.pv-query .form-field input {
+  flex-grow: 1;
+}
