@@ -48,7 +48,7 @@ def require_authentication(permission):
                 token_info = jwt.decode(token_passed, SECRET_KEY, algorithms=['HS256'])
             except Exception as e:
                 logging.exception('Unhandled error:')
-                return {"message": "Invalid token: " + str(e)}
+                return {"message": "Invalid token [" + token_passed + "]: " + str(e)}
 
             try:
                 if token_info:

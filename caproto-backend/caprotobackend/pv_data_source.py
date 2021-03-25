@@ -14,7 +14,7 @@ async def config_web_app(app, settings):
 
     app.router.add_route('GET', '/pvapi/pv/read/{pv_name}', pv_data_source.read_pv)
     app.router.add_route('POST', '/pvapi/pv/write/{pv_name}', pv_data_source.write_pv)
-    app.router.add_route('POST', '/pvapi/pv/read}', pv_data_source.read_pvs)
+    app.router.add_route('POST', '/pvapi/pv/read', pv_data_source.read_pvs)
 
 
 class PVDataSource:
@@ -80,6 +80,10 @@ class PVDataSource:
             }
 
     def pv_to_data(self, pv):
+        if not pv.connected:
+            return {
+                'name': pv.name
+            }
         pv_value = pv.read(data_type='time')
         data_type = pv_value.data_type.name
         meta_data = pv_value.metadata
@@ -109,4 +113,5 @@ class PVDataSource:
             'alarm_status': caproto.AlarmStatus(meta_data.status).name,
             'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name,
             'data': data_list,
+            'name': pv.name
         }
