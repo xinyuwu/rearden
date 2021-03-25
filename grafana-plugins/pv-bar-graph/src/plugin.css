@@ -1,0 +1,20 @@
+
+.pv-bar .alarm {
+  fill: #B71C1C;
+}
+
+.pv-bar .no_alarm {
+  fill: #4CAF50;
+}
+
+.pv-bar .invalid_alarm {
+  fill: #546E7A;
+}
+
+.pv-bar .major_alarm {
+  fill: #B71C1C;
+}
+
+.pv-bar .minor_alarm {
+  fill: #D81B60;
+}
