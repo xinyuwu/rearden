@@ -1,12 +1,17 @@
 
-.pv-query .gf-form{
+/* .pv-query .gf-form{
   flex: 100%;
+} */
+
+/* .pv-query .form-field{
+  flex: 100%;
+} */
+
+.pv-query .gf-form-inline {
+  margin-bottom: 4px;
 }
 
-.pv-query .form-field{
-  flex: 100%;
-}
-
-.pv-query .form-field input {
+.pv-query input {
   flex-grow: 1;
+  width: auto;
 }

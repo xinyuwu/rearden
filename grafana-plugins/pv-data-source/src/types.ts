@@ -9,10 +9,12 @@ export interface MyDataSourceOptions extends DataSourceJsonData {
 
 export interface MyQuery extends DataQuery {
   pv_name?: string;
+  repeat_variable?: string;
 }
 
 export const defaultQuery: Partial<MyQuery> = {
   pv_name: '',
+  repeat_variable: '',
 };
 
 export interface MySecureJsonData {
