@@ -12,7 +12,7 @@ export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOption
     })
     .addTextInput({
       path: 'field_name',
-      name: 'Value corresponding to the field name to display',
+      name: 'Field name to display',
       description: 'Name of field name',
       defaultValue: 'alarm_status',
     })
