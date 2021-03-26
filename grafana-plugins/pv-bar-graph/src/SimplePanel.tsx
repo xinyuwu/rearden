@@ -13,12 +13,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   // const theme = useTheme();
   const styles = getStyles();
   const barMargin = 5;
-
-  const barScale = d3
-    .scaleLinear()
-    .domain([0, 50])
-    .nice()
-    .range([0, height]);
+  let maxVal = 50;
 
   let barWidth = width;
   let dataFrame: any = null;
@@ -26,11 +21,28 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   if (data.series.length > 0) {
     dataFrame = data.series[0];
+    let range = [];
+    for (let field of dataFrame.fields) {
+      if (field['name'] === 'Value') {
+        range = field.values;
+        break;
+      }
+    }
+
+    range = range.map((d: any) => (d === '' ? 0 : d));
+    maxVal = Number(d3.max(range));
+
     barCount = dataFrame.length;
     if (barCount > 0) {
       barWidth = (width - barMargin * barCount) / barCount;
     }
   }
+
+  const barScale = d3
+    .scaleLinear()
+    .domain([0, maxVal])
+    .nice()
+    .range([0, height]);
 
   console.log('pv bar graph');
 
