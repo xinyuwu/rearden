@@ -1,14 +1,31 @@
 import React from 'react';
-import { PanelProps } from '@grafana/data';
+import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
-import { stylesFactory, useTheme } from '@grafana/ui';
+import { stylesFactory } from '@grafana/ui';
+import './plugin.css';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const theme = useTheme();
+  const fieldName = options.fieldName;
+
   const styles = getStyles();
+
+  let nodeMargin = 5;
+
+  let nodeWidth = width;
+  let nodeHeight = height;
+
+  if (data.series.length > 0) {
+    nodeHeight = (height - nodeMargin * data.series.length) / data.series.length;
+
+    let fields = data.series[0].fields;
+    nodeWidth = (width - nodeMargin * fields[0].values.length) / fields[0].values.length;
+  }
+
+  console.log('pv status graph');
+
   return (
     <div
       className={cx(
@@ -25,25 +42,21 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         height={height}
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
-        viewBox={`-${width / 2} -${height / 2} ${width} ${height}`}
       >
-        <g>
-          <circle style={{ fill: `${theme.isLight ? theme.palette.greenBase : theme.palette.blue95}` }} r={100} />
-        </g>
+        {data.series.map((series: any, i: number) => (
+          <g className="pv-status">
+            {getFields(series, fieldName).map((field: any, j: number) => (
+              <rect
+                className={field.toLowerCase().replace(' ', '-')}
+                x={j * (nodeWidth + nodeMargin)}
+                y={i * (nodeHeight + nodeMargin)}
+                height={nodeHeight}
+                width={nodeWidth}
+              />
+            ))}
+          </g>
+        ))}
       </svg>
-
-      <div className={styles.textBox}>
-        {options.showSeriesCount && (
-          <div
-            className={css`
-              font-size: ${theme.typography.size[options.seriesCountSize]};
-            `}
-          >
-            Number of series: {data.series.length}
-          </div>
-        )}
-        <div>Text option value: {options.text}</div>
-      </div>
     </div>
   );
 };
@@ -66,3 +79,17 @@ const getStyles = stylesFactory(() => {
     `,
   };
 });
+
+function getFields(dataFrame: DataFrame | null, fieldName: string): any {
+  if (dataFrame === null) {
+    return [];
+  }
+
+  for (let field of dataFrame.fields) {
+    if (field['name'] === fieldName) {
+      return field.values;
+    }
+  }
+
+  return [];
+}

@@ -1,0 +1,59 @@
+
+.pv-status .alarm {
+  fill: #B71C1C;
+}
+
+.pv-status .ok {
+  fill: #4CAF50;
+}
+
+.pv-status .invalid {
+  fill: #D81B60;
+}
+
+.pv-status .major {
+  fill: #B71C1C;
+}
+
+.pv-status .minor {
+  fill: #FF9100;
+}
+
+.pv-status .disconnected {
+  fill: #BDBDBD;
+}
+
+.pv-status .standby {
+  fill: #CDDC39;
+}
+
+.pv-status .unknown {
+}
+
+.pv-status .link-down {
+  fill: #E040FB;
+}
+
+.pv-status .degraded {
+  fill: #EF5350;
+}
+
+.pv-status .busy {
+  fill: #455A64;
+}
+
+.pv-status .low-power {
+  fill: #FFA726;
+}
+
+.pv-status .loaded {
+  fill: #29B6F6;
+}
+
+.pv-status .idle {
+  fill: #512DA8;
+}
+
+.pv-status .online {
+  fill: #388E3C;
+}

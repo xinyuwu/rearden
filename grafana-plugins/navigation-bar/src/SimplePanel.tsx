@@ -36,7 +36,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     }
 
     let query: any = {};
-    query[var_name] = newVal;
+    query['var-' + var_name] = newVal;
     getLocationSrv().update({
       query: query,
       partial: true,

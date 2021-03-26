@@ -10,7 +10,6 @@ import * as d3 from 'd3';
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  // const theme = useTheme();
   const styles = getStyles();
   const barMargin = 5;
   let maxVal = 50;
