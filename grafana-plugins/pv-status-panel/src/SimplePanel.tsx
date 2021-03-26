@@ -1,5 +1,6 @@
 import React from 'react';
 import { PanelProps, DataFrame } from '@grafana/data';
+import { config } from '@grafana/runtime';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
@@ -10,9 +11,18 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const fieldName = options.fieldName;
 
+  let isDark = config.theme.isDark;
+  let textClass = isDark ? 'dark-text' : 'light-text';
+
   const styles = getStyles();
 
+  let maxTitleLength = 5;
+  let titleLengths = data.series.map(frame => (frame.refId ? frame.refId.length : 0));
+  maxTitleLength = Math.max(...titleLengths);
+
+  const charSize = 12;
   let nodeMargin = 5;
+  let titleWidth = charSize * maxTitleLength;
 
   let nodeWidth = width;
   let nodeHeight = height;
@@ -21,10 +31,10 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     nodeHeight = (height - nodeMargin * data.series.length) / data.series.length;
 
     let fields = data.series[0].fields;
-    nodeWidth = (width - nodeMargin * fields[0].values.length) / fields[0].values.length;
+    nodeWidth = (width - titleWidth - nodeMargin * fields[0].values.length) / fields[0].values.length;
   }
 
-  console.log('pv status graph');
+  console.log('pv status graph ' + maxTitleLength);
 
   return (
     <div
@@ -45,10 +55,13 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       >
         {data.series.map((series: any, i: number) => (
           <g className="pv-status">
+            <text x={0} className={textClass} y={i * (nodeHeight + nodeMargin) + (nodeHeight + charSize) / 2}>
+              {series.refId}
+            </text>
             {getFields(series, fieldName).map((field: any, j: number) => (
               <rect
                 className={field.toLowerCase().replace(' ', '-')}
-                x={j * (nodeWidth + nodeMargin)}
+                x={j * (nodeWidth + nodeMargin) + titleWidth}
                 y={i * (nodeHeight + nodeMargin)}
                 height={nodeHeight}
                 width={nodeWidth}
