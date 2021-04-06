@@ -1,0 +1,27 @@
+{
+  "name": "csiro-pv-antenna-combo",
+  "version": "1.0.0",
+  "description": "combo to take out or return antennas from and to array",
+  "scripts": {
+    "build": "grafana-toolkit plugin:build",
+    "test": "grafana-toolkit plugin:test",
+    "dev": "grafana-toolkit plugin:dev",
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "sign": "grafana-toolkit plugin:sign",
+    "start": "yarn watch"
+  },
+  "author": "Xinyu Wu",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@grafana/data": "latest",
+    "@grafana/toolkit": "latest",
+    "@grafana/ui": "latest",
+    "emotion": "10.0.27",
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
+    "@grafana/runtime": "latest"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
