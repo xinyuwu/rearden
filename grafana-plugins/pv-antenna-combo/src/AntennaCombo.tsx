@@ -15,7 +15,7 @@ import { config, getDataSourceSrv } from '@grafana/runtime';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
 
   let isDark = config.theme.isDark;
@@ -45,8 +45,9 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
   for (frame of data.series) {
     let dataFrame: DataFrame = frame as DataFrame;
 
-    if (dataFrame.refId === 'mask')
+    if (dataFrame.refId === 'mask') {
       mask = getValue(dataFrame, 'Value', -1);
+    }
 
     if (dataFrame['refId'] === 'reason') {
       reason = getValue(dataFrame, 'Value', -1);
@@ -96,9 +97,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     });
   }
 
-  function handleReturnImmdiatelyAction(event: ChangeEvent<HTMLButtonElement>) {
-
-  }
+  function handleReturnImmdiatelyAction(event: ChangeEvent<HTMLButtonElement>) {}
 
   return (
     <div
