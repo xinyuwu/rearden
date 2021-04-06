@@ -62,16 +62,11 @@ class PVDataSource:
         result = pv.write(post_data)
 
         if result.status.success == 1:
-            pv_value = pv.read(data_type='time')
-            meta_data = pv_value.metadata
+            data = self.pv_to_data(pv)
             return {
                 'status': 'success',
                 'message': 'PV value updated',
-                'data_type': pv_value.data_type.name,
-                'time_stamp': meta_data.stamp.as_datetime().timestamp() * 1000,
-                'alarm_status': caproto.AlarmStatus(meta_data.status).name,
-                'alarm_severity': caproto.AlarmSeverity(meta_data.severity).name,
-                'data': pv_value.data.tolist(),
+                'data': data,
             }
         else:
             return {
