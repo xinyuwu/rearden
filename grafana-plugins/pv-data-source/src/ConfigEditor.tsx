@@ -36,7 +36,12 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { onOptionsChange, options } = this.props;
     onOptionsChange({
       ...options,
+      secureJsonFields: {
+        ...options.secureJsonFields,
+        apiKey: false,
+      },
       secureJsonData: {
+        ...options.secureJsonData,
         apiKey: '',
       },
     });
@@ -46,6 +51,8 @@ export class ConfigEditor extends PureComponent<Props, State> {
     const { options } = this.props;
     const { jsonData, secureJsonFields } = options;
     const secureJsonData = (options.secureJsonData || {}) as MySecureJsonData;
+
+    console.log('PV datasource config editor');
 
     return (
       <div className="gf-form-group pv-query">

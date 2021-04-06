@@ -7,7 +7,13 @@
 
 .antenna-select-combo .antenna-state {
   margin-bottom: 1px;
+}
+
+.antenna-select-combo .antenna-state.on {
   background: #66BB6A;
+}
+.antenna-select-combo .antenna-state.off {
+  background: #FF5252;
 }
 
 .antenna-select-combo .select-offline-reason {
@@ -22,10 +28,6 @@
   justify-content: space-between;
 }
 
-.antenna-select-combo .squares.off-line {
-  display: none;
-}
-
 .antenna-select-combo .squares div {
   display: block;
   float: left;
@@ -34,5 +36,5 @@
   height: 10px;
 }
 
-.antenna-select-combo .squares .on {  background: #FF5252;}
-.antenna-select-combo .squares .off {  background: #66BB6A;}
+.antenna-select-combo .squares .off {  background: #FF5252;}
+.antenna-select-combo .squares .on {  background: #66BB6A;}

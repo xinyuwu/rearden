@@ -11,7 +11,7 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { config } from '@grafana/runtime';
+import { config, getDataSourceSrv } from '@grafana/runtime';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -33,27 +33,71 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
   let theme = isDark ? darkTheme : lightTheme;
 
-  const [state, setState] = React.useState<{ reason: string; selectCmd: string | null }>({
-    reason: 'NOT INSTALLED',
-    selectCmd: '',
+  console.log('pv combo');
+
+  let frame: any;
+  let mask = '';
+  let reason = '';
+  let arrayState = '';
+  let cmdPVName = '';
+  let offlinePVName = '';
+
+  for (frame of data.series) {
+    let dataFrame: DataFrame = frame as DataFrame;
+
+    if (dataFrame.refId === 'mask')
+      mask = getValue(dataFrame, 'Value', -1);
+
+    if (dataFrame['refId'] === 'reason') {
+      reason = getValue(dataFrame, 'Value', -1);
+      offlinePVName = getValue(dataFrame, 'name', -1);
+    }
+
+    if (dataFrame['refId'] === 'array') {
+      arrayState = getValue(dataFrame, 'Value', -1);
+      cmdPVName = getValue(dataFrame, 'name', -1);
+    }
+  }
+
+  const [state, setState] = React.useState<{ reason: string; message: string | null }>({
+    reason: reason,
+    message: '',
   });
 
   function handleOfflineChange(event: ChangeEvent<{ name?: string; value: any }>) {
-    setState({
-      ...state,
-      ['reason']: event.target.value!,
+    let reason = event.target.value!;
+    console.log('offlinePVName', offlinePVName);
+
+    const dataSourceSrv: any = getDataSourceSrv();
+    const dataSources = dataSourceSrv.datasources;
+    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    dataSource.doWrite(offlinePVName, [reason]).then((response: any) => {
+      const responseData = response.data;
+      console.log('responseData', responseData);
+      setState({
+        ...state,
+        ['reason']: responseData['data']['data'][0],
+        ['message']: responseData['message'],
+      });
     });
   }
 
-  function handleReturnAction(event: ChangeEvent<HTMLButtonElement>) {}
+  function handleReturnAction(event: ChangeEvent<HTMLButtonElement>) {
+    const dataSourceSrv: any = getDataSourceSrv();
+    const dataSources = dataSourceSrv.datasources;
+    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    dataSource.doWrite(cmdPVName, ['PENDING']).then((response: any) => {
+      const responseData = response.data;
+      console.log('responseData', responseData);
+      setState({
+        ...state,
+        ['message']: responseData['message'],
+      });
+    });
+  }
 
-  function handleReturnImmdiatelyAction(event: ChangeEvent<HTMLButtonElement>) {}
+  function handleReturnImmdiatelyAction(event: ChangeEvent<HTMLButtonElement>) {
 
-  console.log('pv combo graph');
-
-  let dataFrame: any = null;
-  if (data.series.length > 0) {
-    dataFrame = data.series[0];
   }
 
   return (
@@ -69,21 +113,24 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
       <ThemeProvider theme={theme}>
         <div className="antenna-select-combo">
           <div>
-            <Button size="small" className="antenna-state" disableElevation>
-              ma01
+            <Button
+              size="small"
+              disableElevation
+              className={['antenna-state', getStateClassName(arrayState).toLowerCase()].join(' ')}
+            >
+              ma03
             </Button>
-            <div className="squares">
-              <div className="on"></div>
-              <div className="off"></div>
-              <div className="off"></div>
-              <div className="on"></div>
+            <div className={['squares', getStateClassName(arrayState).toLowerCase()].join(' ')}>
+              <div className={getMaskClassName(mask, 1)}></div>
+              <div className={getMaskClassName(mask, 2)}></div>
+              <div className={getMaskClassName(mask, 4)}></div>
+              <div className={getMaskClassName(mask, 8)}></div>
             </div>
           </div>
 
           <FormControl className="select-offline-reason">
             <InputLabel id="select-offline-reason-label">Offline reason</InputLabel>
-            <Select labelId="select-offline-reason-label"
-              value={state.reason} onChange={handleOfflineChange}>
+            <Select labelId="select-offline-reason-label" value={state.reason} onChange={handleOfflineChange}>
               <MenuItem value="">
                 <em></em>
               </MenuItem>
@@ -136,7 +183,7 @@ function getValue(dataFrame: DataFrame | null, fieldName: string, index: number)
     if (field['name'] === fieldName) {
       const list = field.values;
       if (list && list.length > 0) {
-        if (index>=0) {
+        if (index >= 0) {
           let val = list.get(index);
           return val!;
         } else {
@@ -147,4 +194,17 @@ function getValue(dataFrame: DataFrame | null, fieldName: string, index: number)
     }
   }
   return '';
+}
+
+function getMaskClassName(value: string, bitMask: number): string {
+  let numVal = Number(value);
+  if (!isNaN(numVal)) {
+    return (numVal & bitMask) > 0 ? 'on' : 'off';
+  }
+
+  return 'off';
+}
+
+function getStateClassName(value: string): string {
+  return value === 'IN' ? 'on' : 'off';
 }

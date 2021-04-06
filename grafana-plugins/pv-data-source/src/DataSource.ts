@@ -45,6 +45,9 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               { name: 'alarm_severity', type: FieldType.string },
               { name: 'raw_value', type: FieldType.string },
             ],
+            meta: {
+              preferredVisualisationType: 'logs',
+            },
           });
 
           if (response['data']) {
@@ -89,16 +92,14 @@ export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     return Promise.all(promises).then((data) => ({ data }));
   }
 
-  async doWrite(pvName: string, value: number[]) {
-    console.log('doRequest');
+  async doWrite(pvName: string, value: any[]) {
+    console.log('doWrite ' + pvName);
     const result = await getBackendSrv().datasourceRequest({
       method: 'POST',
-      url: this.path + 'write/' + pvName,
+      url: this.path + '/write/' + pvName,
       data: value,
-      headers: { TOKEN: '' },
     });
 
-    // headers: { TOKEN: this.apiKey },
     return result;
   }
 
