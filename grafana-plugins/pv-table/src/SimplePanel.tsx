@@ -143,8 +143,12 @@ function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<strin
     precision = Number(field['precision']);
   }
 
-  let index = Number(fieldIndexMap.get(fieldName.trim()));
-  const list = dataFrame.fields[index].values;
+  let fieldIndex = Number(fieldIndexMap.get(fieldName.trim()));
+  if (isNaN(Number(fieldIndex))) {
+    return '';
+  }
+
+  const list = dataFrame.fields[fieldIndex].values;
 
   if (list && list.length > 0) {
     let val = list.get(list.length - 1);

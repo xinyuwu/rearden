@@ -105,6 +105,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
 
 function getValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<string, number>, index: number): any {
   let fieldIndex = Number(fieldIndexMap.get(fieldName.trim()));
+
+  if (isNaN(fieldIndex)) {
+    return '';
+  }
+
   const list = dataFrame.fields[fieldIndex].values;
 
   if (list && list.length > index) {
