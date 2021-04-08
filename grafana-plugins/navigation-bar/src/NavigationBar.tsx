@@ -13,7 +13,7 @@ import Grid from '@material-ui/core/Grid';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const NavigationBar: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
 
   const var_name = options.var_name;

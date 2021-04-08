@@ -9,7 +9,7 @@ import * as d3 from 'd3';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
   const barMargin = 5;
   let maxVal = 50;

@@ -1,8 +1,8 @@
 import { PanelPlugin } from '@grafana/data';
 import { SimpleOptions } from './types';
-import { SimplePanel } from './SimplePanel';
+import { PVTable } from './PVTable';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions(builder => {
+export const plugin = new PanelPlugin<SimpleOptions>(PVTable).setPanelOptions(builder => {
   return builder.addStringArray({
     path: 'pv_fields',
     name: 'PV Fields',

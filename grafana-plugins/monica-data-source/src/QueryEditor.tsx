@@ -4,10 +4,10 @@ import './plugin.css';
 
 import React, { ChangeEvent, PureComponent } from 'react';
 import { QueryEditorProps } from '@grafana/data';
-import { DataSource } from './DataSource';
+import { MonicaDataSource } from './MonicaDataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<MonicaDataSource, MyQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
   onPointNameChange = (event: ChangeEvent<HTMLInputElement>) => {

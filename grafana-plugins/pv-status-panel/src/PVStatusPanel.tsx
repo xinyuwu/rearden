@@ -8,7 +8,7 @@ import './plugin.css';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const fieldName = options.fieldName;
 
   let isDark = config.theme.isDark;

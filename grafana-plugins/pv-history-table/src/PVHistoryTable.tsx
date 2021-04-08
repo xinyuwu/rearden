@@ -19,7 +19,9 @@ import * as d3 from 'd3';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }) => {
+  console.log('PVHistoryTable');
+
   let isDark = config.theme.isDark;
   const darkTheme = createMuiTheme({
     palette: {

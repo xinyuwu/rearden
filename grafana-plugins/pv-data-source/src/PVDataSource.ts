@@ -21,12 +21,13 @@ interface ExtendedVariableModel extends VariableModel {
   };
 }
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   path = '';
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.path = '/api/datasources/proxy/' + this.id;
+    console.log('PVDataSource');
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {

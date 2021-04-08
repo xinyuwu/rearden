@@ -19,7 +19,9 @@ import * as math from 'mathjs';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
+  console.log('PVTable');
+
   let isDark = config.theme.isDark;
   const darkTheme = createMuiTheme({
     palette: {

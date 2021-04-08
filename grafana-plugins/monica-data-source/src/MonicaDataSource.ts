@@ -13,12 +13,13 @@ import {
 
 import { MyQuery, MyDataSourceOptions } from './types';
 
-export class DataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
+export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   path = '';
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.path = '/api/datasources/proxy/' + this.id + '/points';
+    console.log('MonicaDataSource');
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {

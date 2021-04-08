@@ -3,10 +3,10 @@ import './plugin.css';
 
 import React, { ChangeEvent, PureComponent } from 'react';
 import { QueryEditorProps } from '@grafana/data';
-import { DataSource } from './DataSource';
+import { PVDataSource } from './PVDataSource';
 import { defaultQuery, MyDataSourceOptions, MyQuery } from './types';
 
-type Props = QueryEditorProps<DataSource, MyQuery, MyDataSourceOptions>;
+type Props = QueryEditorProps<PVDataSource, MyQuery, MyDataSourceOptions>;
 
 export class QueryEditor extends PureComponent<Props> {
   onPvNameChange = (event: ChangeEvent<HTMLInputElement>) => {

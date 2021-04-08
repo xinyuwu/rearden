@@ -1,8 +1,8 @@
 import { PanelPlugin } from '@grafana/data';
 import { SimpleOptions } from './types';
-import { SimplePanel } from './SimplePanel';
+import { PVStatusPanel } from './PVStatusPanel';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions(builder => {
+export const plugin = new PanelPlugin<SimpleOptions>(PVStatusPanel).setPanelOptions(builder => {
   return builder.addTextInput({
     path: 'fieldName',
     name: 'Name of field to display',
