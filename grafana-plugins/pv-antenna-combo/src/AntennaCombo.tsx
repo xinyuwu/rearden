@@ -1,6 +1,6 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, FormEvent } from 'react';
 import './plugin.css';
-import { PanelProps, DataFrame } from '@grafana/data';
+import { PanelProps, DataFrame, VariableModel } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
@@ -12,8 +12,17 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { config, getDataSourceSrv } from '@grafana/runtime';
+import { getTemplateSrv } from '@grafana/runtime';
 
 interface Props extends PanelProps<SimpleOptions> {}
+
+interface ExtendedVariableModel extends VariableModel {
+  current: {
+    selected: boolean;
+    value: any;
+    text: string;
+  };
+}
 
 export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
@@ -35,59 +44,84 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
 
   console.log('pv combo');
 
+  let count = 0;
+
+  if (data.series.length > 0) {
+    let dataFrame = data.series[0];
+    count = dataFrame.length;
+  }
+
   let frame: any;
-  let mask = '';
-  let reason = '';
-  let arrayState = '';
-  let cmdPVName = '';
-  let offlinePVName = '';
+  let reasons: string[] = [];
+  let cmdPVNames: string[] = [];
+  let offlinePVNames: string[] = [];
 
   for (frame of data.series) {
     let dataFrame: DataFrame = frame as DataFrame;
 
-    if (dataFrame.refId === 'mask') {
-      mask = getValue(dataFrame, 'Value', -1);
+    if (dataFrame['refId'] === 'array') {
+      for (let field of dataFrame['fields']) {
+        if (field['name'] === 'name') {
+          const list = field.values;
+          for (let i = 0; i < list.length; i++) {
+            let val = list.get(i);
+            cmdPVNames.push(val);
+          }
+        }
+      }
     }
 
     if (dataFrame['refId'] === 'reason') {
-      reason = getValue(dataFrame, 'Value', -1);
-      offlinePVName = getValue(dataFrame, 'name', -1);
-    }
-
-    if (dataFrame['refId'] === 'array') {
-      arrayState = getValue(dataFrame, 'Value', -1);
-      cmdPVName = getValue(dataFrame, 'name', -1);
+      for (let field of dataFrame['fields']) {
+        if (field['name'] === 'name') {
+          const list = field.values;
+          for (let i = 0; i < list.length; i++) {
+            let val = list.get(i);
+            offlinePVNames.push(val);
+          }
+        }
+        if (field['name'] === 'Value') {
+          const list = field.values;
+          for (let i = 0; i < list.length; i++) {
+            let val = list.get(i);
+            reasons.push(val);
+          }
+        }
+      }
     }
   }
 
-  const [state, setState] = React.useState<{ reason: string; message: string | null }>({
-    reason: reason,
+  const [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
+    reason: reasons,
     message: '',
   });
 
-  function handleOfflineChange(event: ChangeEvent<{ name?: string; value: any }>) {
+  function handleOfflineChange(event: ChangeEvent<{ name?: string; value: any }>, index: number) {
     let reason = event.target.value!;
-    console.log('offlinePVName', offlinePVName);
+
+    console.log('offlinePVName', offlinePVNames[index]);
 
     const dataSourceSrv: any = getDataSourceSrv();
     const dataSources = dataSourceSrv.datasources;
     const dataSource = dataSources[Object.keys(dataSources)[0]];
-    dataSource.doWrite(offlinePVName, [reason]).then((response: any) => {
+    let oldReasons: string[] = state.reason;
+    dataSource.doWrite(offlinePVNames[index], [reason]).then((response: any) => {
       const responseData = response.data;
       console.log('responseData', responseData);
+      oldReasons[index] = responseData['data']['data'][0];
       setState({
         ...state,
-        ['reason']: responseData['data']['data'][0],
+        ['reason']: oldReasons,
         ['message']: responseData['message'],
       });
     });
   }
 
-  function handleReturnAction(event: ChangeEvent<HTMLButtonElement>) {
+  function handleReturnAction(event: FormEvent<HTMLButtonElement>, index: number) {
     const dataSourceSrv: any = getDataSourceSrv();
     const dataSources = dataSourceSrv.datasources;
     const dataSource = dataSources[Object.keys(dataSources)[0]];
-    dataSource.doWrite(cmdPVName, ['PENDING']).then((response: any) => {
+    dataSource.doWrite(cmdPVNames[index], ['PENDING']).then((response: any) => {
       const responseData = response.data;
       console.log('responseData', responseData);
       setState({
@@ -97,7 +131,15 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     });
   }
 
-  function handleReturnImmdiatelyAction(event: ChangeEvent<HTMLButtonElement>) {}
+  function handleReturnImmdiatelyAction(event: FormEvent<HTMLButtonElement>, index: number) {}
+
+  const variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
+  let repeatVar: any[] = [];
+  for (let variable of variables) {
+    if (variable['name'] === 'antennas') {
+      repeatVar = variable['current']['value'];
+    }
+  }
 
   return (
     <div
@@ -110,44 +152,54 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
       )}
     >
       <ThemeProvider theme={theme}>
-        <div className="antenna-select-combo">
-          <div>
-            <Button
-              size="small"
-              disableElevation
-              className={['antenna-state', getStateClassName(arrayState).toLowerCase()].join(' ')}
-            >
-              ma03
-            </Button>
-            <div className={['squares', getStateClassName(arrayState).toLowerCase()].join(' ')}>
-              <div className={getMaskClassName(mask, 1)}></div>
-              <div className={getMaskClassName(mask, 2)}></div>
-              <div className={getMaskClassName(mask, 4)}></div>
-              <div className={getMaskClassName(mask, 8)}></div>
-            </div>
-          </div>
+        <div>
+          {Array(count)
+            .fill(0)
+            .map((_, index) => (
+              <div className="antenna-select-combo">
+                <div>
+                  <Button
+                    size="small"
+                    disableElevation
+                    className={['antenna-state', getStateClassName(data.series, index).toLowerCase()].join(' ')}
+                  >
+                    {repeatVar[index]!}
+                  </Button>
+                  <div className={['squares', getStateClassName(data.series, index).toLowerCase()].join(' ')}>
+                    <div className={getMaskClassName(data.series, index, 1)}></div>
+                    <div className={getMaskClassName(data.series, index, 2)}></div>
+                    <div className={getMaskClassName(data.series, index, 4)}></div>
+                    <div className={getMaskClassName(data.series, index, 8)}></div>
+                  </div>
+                </div>
 
-          <FormControl className="select-offline-reason">
-            <InputLabel id="select-offline-reason-label">Offline reason</InputLabel>
-            <Select labelId="select-offline-reason-label" value={state.reason} onChange={handleOfflineChange}>
-              <MenuItem value="">
-                <em></em>
-              </MenuItem>
-              <MenuItem value={'NOT INSTALLED'}>NOT INSTALLED</MenuItem>
-              <MenuItem value={'drives fault'}>drives fault</MenuItem>
-              <MenuItem value={'drives maintenence'}>drives maintenence</MenuItem>
-              <MenuItem value={'cooling fault'}>cooling fault</MenuItem>
-              <MenuItem value={'PAF maintenence'}>PAF maintenence</MenuItem>
-              <MenuItem value={'digital backend fault'}>digital backend fault</MenuItem>
-              <MenuItem value={'no beam weight'}>no beam weight</MenuItem>
-              <MenuItem value={'debugging/testing'}>debugging/testing</MenuItem>
-            </Select>
-          </FormControl>
+                <FormControl className="select-offline-reason">
+                  <InputLabel id="select-offline-reason-label">Offline reason</InputLabel>
+                  <Select
+                    labelId="select-offline-reason-label"
+                    value={state.reason[index]}
+                    onChange={event => handleOfflineChange(event, index)}
+                  >
+                    <MenuItem value="">
+                      <em></em>
+                    </MenuItem>
+                    <MenuItem value={'NOT INSTALLED'}>NOT INSTALLED</MenuItem>
+                    <MenuItem value={'drives fault'}>drives fault</MenuItem>
+                    <MenuItem value={'drives maintenence'}>drives maintenence</MenuItem>
+                    <MenuItem value={'cooling fault'}>cooling fault</MenuItem>
+                    <MenuItem value={'PAF maintenence'}>PAF maintenence</MenuItem>
+                    <MenuItem value={'digital backend fault'}>digital backend fault</MenuItem>
+                    <MenuItem value={'no beam weight'}>no beam weight</MenuItem>
+                    <MenuItem value={'debugging/testing'}>debugging/testing</MenuItem>
+                  </Select>
+                </FormControl>
 
-          <ButtonGroup variant="contained">
-            <Button onChange={handleReturnAction}>Return</Button>
-            <Button onChange={handleReturnImmdiatelyAction}>Return Now</Button>
-          </ButtonGroup>
+                <ButtonGroup variant="contained">
+                  <Button onChange={event => handleReturnAction(event, index)}>Return</Button>
+                  <Button onChange={event => handleReturnImmdiatelyAction(event, index)}>Return Now</Button>
+                </ButtonGroup>
+              </div>
+            ))}
         </div>
       </ThemeProvider>
     </div>
@@ -195,7 +247,17 @@ function getValue(dataFrame: DataFrame | null, fieldName: string, index: number)
   return '';
 }
 
-function getMaskClassName(value: string, bitMask: number): string {
+function getMaskClassName(dataSeries: any[], index: number, bitMask: number): string {
+  let frame: any;
+  let value = '';
+
+  for (frame of dataSeries) {
+    let dataFrame: DataFrame = frame as DataFrame;
+    if (dataFrame.refId === 'mask') {
+      value = getValue(dataFrame, 'Value', index);
+    }
+  }
+
   let numVal = Number(value);
   if (!isNaN(numVal)) {
     return (numVal & bitMask) > 0 ? 'on' : 'off';
@@ -204,6 +266,15 @@ function getMaskClassName(value: string, bitMask: number): string {
   return 'off';
 }
 
-function getStateClassName(value: string): string {
+function getStateClassName(dataSeries: any[], index: number): string {
+  let frame: any;
+  let value = '';
+  for (frame of dataSeries) {
+    let dataFrame: DataFrame = frame as DataFrame;
+    if (dataFrame['refId'] === 'array') {
+      value = getValue(dataFrame, 'Value', index);
+    }
+  }
+
   return value === 'IN' ? 'on' : 'off';
 }
