@@ -1,25 +1,38 @@
+.antenna-select {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  flex-flow: column wrap;
+  height: 100%;
+}
+
 .antenna-select-combo {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
+  margin-right: 25px;
 }
 
 .antenna-select-combo .antenna-state {
   margin-bottom: 1px;
 }
 
-.antenna-select-combo .antenna-state.on {
+.antenna-select-combo .antenna-state.in {
   background: #66BB6A;
 }
-.antenna-select-combo .antenna-state.off {
+.antenna-select-combo .antenna-state.out {
   background: #FF5252;
+}
+.antenna-select-combo .antenna-state.pending {
+  background: #FFEB3B;
 }
 
 .antenna-select-combo .select-offline-reason {
-  flex-grow: 4;
+  flex-grow: 1;
   margin-left: 10px;
   margin-right: 10px;
+  min-width: 125px;
 }
 
 .antenna-select-combo .squares {

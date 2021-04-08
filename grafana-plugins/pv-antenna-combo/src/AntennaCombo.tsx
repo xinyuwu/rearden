@@ -24,7 +24,7 @@ interface ExtendedVariableModel extends VariableModel {
   };
 }
 
-export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) => {
+export const AntennaCombo: React.FC<Props> = ({ options, data, width, height}) => {
   const styles = getStyles();
 
   let isDark = config.theme.isDark;
@@ -59,7 +59,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
   for (frame of data.series) {
     let dataFrame: DataFrame = frame as DataFrame;
 
-    if (dataFrame['refId'] === 'array') {
+    if (dataFrame['refId'] === 'command') {
       for (let field of dataFrame['fields']) {
         if (field['name'] === 'name') {
           const list = field.values;
@@ -91,7 +91,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     }
   }
 
-  const [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
+  const [state, setState] = React.useState<{ reason: string[], message: string | null }>({
     reason: reasons,
     message: '',
   });
@@ -131,7 +131,19 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     });
   }
 
-  function handleReturnImmdiatelyAction(event: FormEvent<HTMLButtonElement>, index: number) {}
+  function handleReturnImmdiatelyAction(event: FormEvent<HTMLButtonElement>, index: number) {
+    const dataSourceSrv: any = getDataSourceSrv();
+    const dataSources = dataSourceSrv.datasources;
+    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    dataSource.doWrite(cmdPVNames[index], ['IN']).then((response: any) => {
+      const responseData = response.data;
+      console.log('responseData', responseData);
+      setState({
+        ...state,
+        ['message']: responseData['message'],
+      });
+    });
+  }
 
   const variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
   let repeatVar: any[] = [];
@@ -152,7 +164,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
       )}
     >
       <ThemeProvider theme={theme}>
-        <div>
+        <div className='antenna-select'>
           {Array(count)
             .fill(0)
             .map((_, index) => (
@@ -177,7 +189,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
                   <InputLabel id="select-offline-reason-label">Offline reason</InputLabel>
                   <Select
                     labelId="select-offline-reason-label"
-                    value={state.reason[index]}
+                    value={reasons[index]}
                     onChange={event => handleOfflineChange(event, index)}
                   >
                     <MenuItem value="">
@@ -195,8 +207,8 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
                 </FormControl>
 
                 <ButtonGroup variant="contained">
-                  <Button onChange={event => handleReturnAction(event, index)}>Return</Button>
-                  <Button onChange={event => handleReturnImmdiatelyAction(event, index)}>Return Now</Button>
+                  <Button onClick={event => handleReturnAction(event, index)}>Return</Button>
+                  <Button onClick={event => handleReturnImmdiatelyAction(event, index)}>Return Now</Button>
                 </ButtonGroup>
               </div>
             ))}
@@ -276,5 +288,5 @@ function getStateClassName(dataSeries: any[], index: number): string {
     }
   }
 
-  return value === 'IN' ? 'on' : 'off';
+  return value;
 }
