@@ -59,7 +59,15 @@ class PVDataSource:
         post_data = json.loads(jso_str)
 
         pv = self.ctx.get_pvs(pv_name)[0]
-        result = pv.write(post_data)
+        enum_post_data = post_data
+        control_pv = pv.read(data_type='control')
+        if 'ENUM' in control_pv.pv_value.data_type.name:
+            enum_post_data = []
+            for val in post_data:
+                enum_val = control_pv.metadata.enum_strings.index(val.encode())
+                enum_post_data.append(enum_val)
+
+        result = pv.write(enum_post_data)
 
         if result.status.success == 1:
             data = self.pv_to_data(pv)
