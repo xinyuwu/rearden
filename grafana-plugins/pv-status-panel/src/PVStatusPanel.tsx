@@ -26,12 +26,14 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
 
   let nodeWidth = width;
   let nodeHeight = height;
+  let numberOfColumns = 0;
 
   if (data.series.length > 0) {
-    nodeHeight = (height - nodeMargin * data.series.length) / data.series.length;
+    nodeHeight = (height - nodeMargin * data.series.length - charSize) / data.series.length;
 
     let fields = data.series[0].fields;
     nodeWidth = (width - titleWidth - nodeMargin * fields[0].values.length) / fields[0].values.length;
+    numberOfColumns = fields[0].values.length;
   }
 
   console.log('pv status graph ' + maxTitleLength);
@@ -68,6 +70,14 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
               />
             ))}
           </g>
+        ))}
+        {Array(numberOfColumns).fill(0).map((_, index) => (
+          <text
+            className={['status-label', textClass].join(' ')}
+            x={index * (nodeWidth + nodeMargin) + nodeWidth/2 - charSize/2 + titleWidth}
+            y={height}
+          >{index+1}
+          </text>
         ))}
       </svg>
     </div>

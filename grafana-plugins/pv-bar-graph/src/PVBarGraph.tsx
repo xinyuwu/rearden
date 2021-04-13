@@ -4,6 +4,7 @@ import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
 import './plugin.css';
+import { config } from '@grafana/runtime';
 
 import * as d3 from 'd3';
 
@@ -13,6 +14,9 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
   const styles = getStyles();
   const barMargin = 5;
   let maxVal = 50;
+
+  let isDark = config.theme.isDark;
+  let textClass = isDark ? 'dark-text' : 'light-text';
 
   let barWidth = width;
   let dataFrame: any = null;
@@ -37,11 +41,13 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
     }
   }
 
+  let barHeight = height - 10;
+
   const barScale = d3
     .scaleLinear()
     .domain([0, maxVal])
     .nice()
-    .range([0, height]);
+    .range([0, barHeight]);
 
   console.log('pv bar graph');
 
@@ -66,16 +72,23 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
           .fill(0)
           .map((_, index) => (
             <g className="pv-bar">
-              <rect style={{ fill: `#BDBDBD` }} x={index * (barWidth + barMargin)} height={height} width={barWidth} />
+              <rect style={{ fill: `#BDBDBD` }} x={index * (barWidth + barMargin)} height={barHeight} width={barWidth} />
               <rect
                 className={getValue(dataFrame, 'alarm_severity', index).toLowerCase()}
                 x={index * (barWidth + barMargin)}
-                y={height - getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
+                y={barHeight - getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
                 height={getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
                 width={barWidth}
               />
+              <text
+                className={['status-label', textClass].join(' ')}
+                x={index * (barWidth + barMargin) + barWidth/2}
+                y={height}
+              >{index+1}
+              </text>
             </g>
           ))}
+
       </svg>
     </div>
   );

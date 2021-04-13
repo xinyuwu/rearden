@@ -1,12 +1,14 @@
-.pv-status .light-text {
+.light-text {
   fill: black;
 }
 
-.pv-status .dark-text {
+.dark-text {
   fill: white;
 }
 
-
+.status-label {
+  font-size: 70%;
+}
 
 .pv-status .alarm {
   fill: #B71C1C;

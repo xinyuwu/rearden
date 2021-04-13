@@ -1,4 +1,16 @@
 
+.light-text {
+  fill: black;
+}
+
+.dark-text {
+  fill: white;
+}
+
+.status-label {
+  font-size: 70%;
+}
+
 .pv-bar .alarm {
   fill: #B71C1C;
 }
