@@ -5,6 +5,8 @@ import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { config } from '@grafana/runtime';
 
+import * as pandas from 'pandas-js';
+
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -39,17 +41,19 @@ export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }
 
   const format = d3.utcFormat('%Y-%m-%dT%H:%M:%S');
 
-  let timestampList: Date[] = [];
-  const fieldIndexMap: Map<string, number> = new Map();
-  if (data.series.length > 0) {
-    let frame = data.series[0];
-    for (let i = 0; i < frame.fields.length; i++) {
-      fieldIndexMap.set(frame.fields[i].name!, i);
-      if (frame.fields[i].name === 'Time') {
-        timestampList = frame.fields[i].values.toArray();
+  let dataFrame: pandas.DataFrame;
+  for (let series of data.series) {
+    let frame = seriesToDataframe(series);
+    if (dataFrame) {
+      if (frame) {
+        dataFrame = dataFrame.merge(frame, ['Time'], 'outer');
       }
+    } else {
+      dataFrame = frame;
     }
   }
+
+  let timestampList = dataFrame.get('Time').sort_values().index.toList();
 
   let colWidth = 100 / (data.series.length + 1);
 
@@ -82,16 +86,16 @@ export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }
             </TableHead>
 
             <TableBody>
-              {timestampList.map((timestamp: Date, index: number) => (
+              {timestampList.map((actual_index: number, index: number) => (
                 <TableRow key={index.toString()}>
-                  <TableCell align="center">{format(timestamp)}</TableCell>
+                  <TableCell align="center">{format(getValue(dataFrame, '', 'Time', actual_index))}</TableCell>
                   {data.series.map(frame => (
-                    <Tooltip title={getValue(frame, 'raw_value', fieldIndexMap, index)} placement="top">
+                    <Tooltip title={getValue(dataFrame, frame.name, 'raw_value', actual_index)} placement="top">
                       <TableCell
                         align="right"
-                        className={getValue(frame, 'alarm_severity', fieldIndexMap, index).toLowerCase()}
+                        className={getValue(dataFrame, frame.name, 'alarm_severity', actual_index).toLowerCase()}
                       >
-                        {getValue(frame, 'Value', fieldIndexMap, index)}
+                        {getValue(dataFrame, frame.name, 'Value', actual_index)}
                       </TableCell>
                     </Tooltip>
                   ))}
@@ -105,19 +109,26 @@ export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }
   );
 };
 
-function getValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<string, number>, index: number): any {
-  let fieldIndex = Number(fieldIndexMap.get(fieldName.trim()));
+function getValue(dataFrame: pandas.DataFrame, frameName: string, fieldName: string, index: number): any {
+  let columnName = fieldName;
+  if (frameName)
+    columnName = frameName + '-' + fieldName;
 
-  if (isNaN(fieldIndex)) {
+  if (!dataFrame.columnExists(columnName)) {
     return '';
   }
 
-  const list = dataFrame.fields[fieldIndex].values;
+  let series = dataFrame.get(columnName);
+  let val: any;
 
-  if (list && list.length > index) {
-    let val = list.get(index);
+  if (series) {
+    val = dataFrame.get(columnName).values.get(index);
+  } else {
+    val = '';
+  }
+
+  if (val !== null) {
     let numVal = Number(val);
-
     if (!isNaN(numVal)) {
       return Number(numVal.toFixed(2));
     }
@@ -126,4 +137,60 @@ function getValue(dataFrame: DataFrame, fieldName: string, fieldIndexMap: Map<st
   }
 
   return '';
+}
+
+function seriesToDataframe(frame: DataFrame): pandas.DataFrame[] {
+  let data = [];
+
+  let lastTime: Number = 0;
+
+  for (let i = 0; i < frame.fields[0].values.length; i++) {
+    let obj = {};
+
+    for (let field of frame.fields) {
+      if (field.name === 'Time') {
+        // get rid of second component
+        let val = field.values.get(i);
+        val.setMilliseconds(0);
+        val.setSeconds(0);
+        if (lastTime > 0) {
+          if (val.getTime() === lastTime) {
+            break;
+          }
+        }
+        obj['Time'] = val.getTime();
+        lastTime = val.getTime();
+      } else {
+        let name = frame.name + '-' + field.name;
+        obj[name] = field.values.get(i);
+      }
+    }
+
+    if (Object.keys(obj).length > 0) {
+      data.push(obj);
+    }
+  }
+
+  if (data.length > 0) {
+    let dataFrame = new pandas.DataFrame(data);
+    return dataFrame;
+  }
+
+  return null;
+
+  // for (let field of frame.fields) {
+  //   if (field.name === 'Time') {
+  //     data.set(field.name, new pandas.Series(field.values.toArray(),
+  //                                             {name: field.name}));
+  //     columns.push(field.name);
+  //   } else {
+  //     let name = frame.name + '-' + field.name
+  //     data.set(name,
+  //             new pandas.Series(field.values.toArray(), {name: name}));
+  //     columns.push(name);
+  //   }
+  // }
+  //
+  // let dataFrame = new pandas.DataFrame(data, columns);
+  // return dataFrame;
 }

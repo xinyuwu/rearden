@@ -19,7 +19,8 @@
     "emotion": "10.0.27",
     "@material-ui/core": "latest",
     "@types/mathjs": "latest",
-    "@types/d3": "latest"
+    "@types/d3": "latest",
+    "pandas-js": "latest"
   },
   "engines": {
     "node": ">=14"
