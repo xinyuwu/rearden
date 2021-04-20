@@ -53,7 +53,10 @@ export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }
     }
   }
 
-  let timestampList = dataFrame.get('Time').sort_values().index.toList();
+  let timestampList = dataFrame
+    .get('Time')
+    .sort_values()
+    .index.toList();
 
   let colWidth = 100 / (data.series.length + 1);
 
@@ -111,8 +114,9 @@ export const PVHistoryTable: React.FC<Props> = ({ options, data, width, height }
 
 function getValue(dataFrame: pandas.DataFrame, frameName: string, fieldName: string, index: number): any {
   let columnName = fieldName;
-  if (frameName)
+  if (frameName) {
     columnName = frameName + '-' + fieldName;
+  }
 
   if (!dataFrame.columnExists(columnName)) {
     return '';

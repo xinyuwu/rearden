@@ -1,6 +1,6 @@
 {
   "name": "csiro-pv-table",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "A table to display fields of PVs with alarm status ",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
