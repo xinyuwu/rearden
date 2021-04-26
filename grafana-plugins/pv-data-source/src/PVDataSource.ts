@@ -19,6 +19,7 @@ interface ExtendedVariableModel extends VariableModel {
     value: any;
     text: string;
   };
+  options: any[];
 }
 
 export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
@@ -115,7 +116,21 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (query['repeat_variable']) {
       for (let v of variables) {
         if (v['name'] === query['repeat_variable']) {
-          repeatVar = v['current']['value'];
+          let value = v['current']['value'];
+          if (value.length === 1 && value[0] === '$__all') {
+            repeatVar = v['options']
+              .map((option: any) => {
+                if (option.value !== '$__all') {
+                  return option.value;
+                }
+                return '';
+              })
+              .filter((val) => {
+                return val !== '';
+              });
+          } else {
+            repeatVar = v['current']['value'];
+          }
         }
       }
     }

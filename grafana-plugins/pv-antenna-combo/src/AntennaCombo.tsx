@@ -22,9 +22,10 @@ interface ExtendedVariableModel extends VariableModel {
     value: any;
     text: string;
   };
+  options: any[];
 }
 
-export const AntennaCombo: React.FC<Props> = ({ options, data, width, height}) => {
+export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
 
   let isDark = config.theme.isDark;
@@ -91,7 +92,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height}) =
     }
   }
 
-  const [state, setState] = React.useState<{ reason: string[], message: string | null }>({
+  const [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
     reason: reasons,
     message: '',
   });
@@ -149,7 +150,21 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height}) =
   let repeatVar: any[] = [];
   for (let variable of variables) {
     if (variable['name'] === 'antennas') {
-      repeatVar = variable['current']['value'];
+      let value = variable['current']['value'];
+      if (value.length === 1 && value[0] === '$__all') {
+        repeatVar = variable['options']
+          .map((option: any) => {
+            if (option.value !== '$__all') {
+              return option.value;
+            }
+            return '';
+          })
+          .filter(val => {
+            return val !== '';
+          });
+      } else {
+        repeatVar = variable['current']['value'];
+      }
     }
   }
 
@@ -164,7 +179,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height}) =
       )}
     >
       <ThemeProvider theme={theme}>
-        <div className='antenna-select'>
+        <div className="antenna-select">
           {Array(count)
             .fill(0)
             .map((_, index) => (
