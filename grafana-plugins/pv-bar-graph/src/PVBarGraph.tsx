@@ -5,6 +5,7 @@ import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
 import './plugin.css';
 import { config } from '@grafana/runtime';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import * as d3 from 'd3';
 
@@ -72,23 +73,27 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
           .fill(0)
           .map((_, index) => (
             <g className="pv-bar">
-              <rect style={{ fill: `#BDBDBD` }} x={index * (barWidth + barMargin)} height={barHeight} width={barWidth} />
-              <rect
-                className={getValue(dataFrame, 'alarm_severity', index).toLowerCase()}
-                x={index * (barWidth + barMargin)}
-                y={barHeight - getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
-                height={getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
-                width={barWidth}
-              />
+              <Tooltip title={getValue(dataFrame, 'raw_value', index)} placement="top">
+                <rect className="pv-bar-base" x={index * (barWidth + barMargin)} height={barHeight} width={barWidth} />
+              </Tooltip>
+              <Tooltip title={getValue(dataFrame, 'raw_value', index)} placement="top">
+                <rect
+                  className={getValue(dataFrame, 'alarm_severity', index).toLowerCase()}
+                  x={index * (barWidth + barMargin)}
+                  y={barHeight - getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
+                  height={getScaledValue(getValue(dataFrame, 'Value', index), barScale)}
+                  width={barWidth}
+                />
+              </Tooltip>
               <text
                 className={['status-label', textClass].join(' ')}
-                x={index * (barWidth + barMargin) + barWidth/2}
+                x={index * (barWidth + barMargin) + barWidth / 2}
                 y={height}
-              >{index+1}
+              >
+                {index + 1}
               </text>
             </g>
           ))}
-
       </svg>
     </div>
   );

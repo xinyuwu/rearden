@@ -17,6 +17,7 @@
     "@grafana/runtime": "latest",
     "@grafana/toolkit": "latest",
     "@grafana/ui": "latest",
+    "@material-ui/core": "latest",
     "@types/d3": "^6.3.0",
     "emotion": "10.0.27"
   },

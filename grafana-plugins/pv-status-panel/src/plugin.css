@@ -68,3 +68,8 @@
 .pv-status .online {
   fill: #388E3C;
 }
+
+.pv-status .pv-status-rect:hover {
+  cursor: pointer;
+  fill: #ECEFF1;
+}

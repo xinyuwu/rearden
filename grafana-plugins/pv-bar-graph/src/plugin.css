@@ -30,3 +30,7 @@
 .pv-bar .minor_alarm {
   fill: #D81B60;
 }
+
+.pv-bar .pv-bar-base {
+  fill: #BDBDBD;
+}

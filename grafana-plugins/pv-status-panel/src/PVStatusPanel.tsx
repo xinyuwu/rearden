@@ -1,15 +1,17 @@
 import React from 'react';
 import { PanelProps, DataFrame } from '@grafana/data';
 import { config } from '@grafana/runtime';
-import { SimpleOptions } from 'types';
+import { PVStatusOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
 import './plugin.css';
+import Tooltip from '@material-ui/core/Tooltip';
 
-interface Props extends PanelProps<SimpleOptions> {}
+interface Props extends PanelProps<PVStatusOptions> {}
 
 export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const fieldName = options.fieldName;
+  const link = options.url_link;
 
   let isDark = config.theme.isDark;
   let textClass = isDark ? 'dark-text' : 'light-text';
@@ -61,28 +63,38 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
               {series.refId}
             </text>
             {getFields(series, fieldName).map((field: any, j: number) => (
-              <rect
-                className={field.toLowerCase().replace(' ', '-')}
-                x={j * (nodeWidth + nodeMargin) + titleWidth}
-                y={i * (nodeHeight + nodeMargin)}
-                height={nodeHeight}
-                width={nodeWidth}
-              />
+              <Tooltip title={getFields(series, 'raw_value').get(j)} placement="top">
+                <rect
+                  className={[field.toLowerCase().replace(' ', '-'), 'pv-status-rect'].join(' ')}
+                  x={j * (nodeWidth + nodeMargin) + titleWidth}
+                  y={i * (nodeHeight + nodeMargin)}
+                  height={nodeHeight}
+                  width={nodeWidth}
+                  onClick={e => goToURL(e, link)}
+                />
+              </Tooltip>
             ))}
           </g>
         ))}
-        {Array(numberOfColumns).fill(0).map((_, index) => (
-          <text
-            className={['status-label', textClass].join(' ')}
-            x={index * (nodeWidth + nodeMargin) + nodeWidth/2 - charSize/2 + titleWidth}
-            y={height}
-          >{index+1}
-          </text>
-        ))}
+        {Array(numberOfColumns)
+          .fill(0)
+          .map((_, index) => (
+            <text
+              className={['status-label', textClass].join(' ')}
+              x={index * (nodeWidth + nodeMargin) + nodeWidth / 2 - charSize / 2 + titleWidth}
+              y={height}
+            >
+              {index + 1}
+            </text>
+          ))}
       </svg>
     </div>
   );
 };
+
+function goToURL(event: any, url: string) {
+  window.open(url, '_blank');
+}
 
 const getStyles = stylesFactory(() => {
   return {
