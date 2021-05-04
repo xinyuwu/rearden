@@ -1,0 +1,64 @@
+.light-text {
+  fill: black;
+}
+
+.dark-text {
+  fill: white;
+}
+
+#card-status-div {
+  display: flex;
+  flex-direction: column;
+}
+
+#card-status-div .card-status-row {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+#card-status-div .card-status-title {
+  flex-grow: 4;
+}
+
+#card-status-div .card-status-border {
+  border-style: solid;
+  border-width: 2px;
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+}
+
+.alarm {
+  border-color: #B71C1C;
+}
+
+.no_alarm {
+}
+
+.invalid_alarm {
+  border-color: #546E7A;
+}
+
+.major_alarm {
+  border-color: #B71C1C;
+}
+
+.minor_alarm {
+  border-color: #D81B60;
+}
+
+#card-status-div .card-state {
+  margin-bottom: 1px;
+}
+
+#card-status-div .card-state.in {
+  color: #66BB6A;
+}
+
+#card-status-div .card-state.out {
+  color: #FF5252;
+}
+
+#card-status-div .card-state.pending {
+  color: #FFEB3B;
+}
