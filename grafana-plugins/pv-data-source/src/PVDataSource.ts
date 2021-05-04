@@ -129,13 +129,17 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
                 return val !== '';
               });
           } else {
-            repeatVar = v['current']['value'];
+            if (Array.isArray(v['current']['value'])) {
+              repeatVar = v['current']['value'];
+            } else {
+              repeatVar = [v['current']['value']];
+            }
           }
         }
       }
     }
 
-    if (repeatVar && repeatVar.length > 1) {
+    if (repeatVar && repeatVar.length >= 1) {
       for (let val of repeatVar) {
         scopedVars[query['repeat_variable']!] = { text: val, value: val };
         const name = templateSrv.replace(query['pv_name'], scopedVars);
