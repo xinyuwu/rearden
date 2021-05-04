@@ -1,0 +1,27 @@
+.light-text {
+  fill: black;
+}
+
+.dark-text {
+  fill: white;
+}
+
+#status-writer-div {
+  display: flex;
+  flex-direction: column;
+}
+
+#status-writer-div .status-writer-row {
+  display: flex;
+  margin-bottom: 5px;
+  align-items: center;
+}
+
+#status-writer-div .status-writer-title {
+  flex-grow: 4;
+}
+
+#status-writer-div .checkbox {
+  padding-left: 3px;
+  padding-right: 3px;
+}
