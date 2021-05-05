@@ -21,16 +21,37 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
 
   let isDark = config.theme.isDark;
   let textClass = isDark ? 'dark-text' : 'light-text';
-
   const styles = getStyles();
+
+  let statusMatrix: boolean[][] = [];
+  for (let dataFrame of data.series) {
+    let statusList: boolean[] = [];
+    for (let field of dataFrame.fields) {
+      if (field['name'] === statusFieldName) {
+        for (let val of field.values.toArray()) {
+          statusList.push(val.toString() === checkedValue);
+        }
+      }
+    }
+    statusMatrix.push(statusList);
+  }
+
+  let [state, setState] = React.useState<{ matrix: boolean[][] }>({
+    matrix: statusMatrix,
+  });
 
   console.log('status writer panel');
 
-  function handleStatusChange(event: React.ChangeEvent<HTMLInputElement>, pvName: string) {
-    let checked = event.target.checked;
+  function handleStatusChange(
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    pvName: string,
+    row: number,
+    col: number
+  ) {
+    let checked = !state.matrix[row][col];
     let value = checked ? checkedValue : uncheckedValue;
 
-    console.log('handleStatusChange ' + pvName);
+    console.log('handleStatusChange ' + pvName + ' checked: ' + checked);
 
     let dataSourceSrv: any = getDataSourceSrv();
     let dataSources = dataSourceSrv.datasources;
@@ -38,6 +59,11 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
     dataSource.doWrite(pvName, [value]).then((response: any) => {
       let responseData = response.data;
       console.log('responseData', responseData);
+    });
+    statusMatrix[row][col] = checked;
+    setState({
+      ...state,
+      ['matrix']: statusMatrix,
     });
   }
 
@@ -52,7 +78,7 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
         `
       )}
     >
-      {data.series.map((series: any) => (
+      {data.series.map((series: any, row: number) => (
         <div className="status-writer-row">
           <div className={[textClass, 'status-writer-title'].join(' ')}>{series.refId}</div>
           {Array(columnCount)
@@ -61,9 +87,10 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
               <Checkbox
                 className="checkbox"
                 style={{ color: getColor(series, statusFieldName, col) }}
+                color="primary"
                 disabled={getField(series, statusFieldName, col) === ''}
-                checked={getField(series, statusFieldName, col) === checkedValue}
-                onChange={e => handleStatusChange(e, getField(series, 'name', col))}
+                checked={state.matrix[row][col]}
+                onClick={e => handleStatusChange(e, getField(series, 'name', col), row, col)}
                 inputProps={{ 'aria-label': 'primary checkbox' }}
               />
             ))}
@@ -101,7 +128,7 @@ function getColor(dataFrame: DataFrame | null, fieldName: string, index: number)
     if (field['name'] === fieldName) {
       if (field.values && field.values.length > index) {
         if (!isNaN(field.values.get(index))) {
-          return 'primary';
+          return '';
         }
       }
     }
