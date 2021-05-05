@@ -63,7 +63,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     if (dataFrame['refId'] === 'command') {
       for (let field of dataFrame['fields']) {
         if (field['name'] === 'name') {
-          const list = field.values;
+          let list = field.values;
           for (let i = 0; i < list.length; i++) {
             let val = list.get(i);
             cmdPVNames.push(val);
@@ -75,14 +75,14 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     if (dataFrame['refId'] === 'reason') {
       for (let field of dataFrame['fields']) {
         if (field['name'] === 'name') {
-          const list = field.values;
+          let list = field.values;
           for (let i = 0; i < list.length; i++) {
             let val = list.get(i);
             offlinePVNames.push(val);
           }
         }
         if (field['name'] === 'Value') {
-          const list = field.values;
+          let list = field.values;
           for (let i = 0; i < list.length; i++) {
             let val = list.get(i);
             reasons.push(val);
@@ -92,7 +92,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     }
   }
 
-  const [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
+  let [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
     reason: reasons,
     message: '',
   });
@@ -102,12 +102,12 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
 
     console.log('offlinePVName', offlinePVNames[index]);
 
-    const dataSourceSrv: any = getDataSourceSrv();
-    const dataSources = dataSourceSrv.datasources;
-    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    let dataSourceSrv: any = getDataSourceSrv();
+    let dataSources = dataSourceSrv.datasources;
+    let dataSource = dataSources[Object.keys(dataSources)[0]];
     let oldReasons: string[] = state.reason;
     dataSource.doWrite(offlinePVNames[index], [reason]).then((response: any) => {
-      const responseData = response.data;
+      let responseData = response.data;
       console.log('responseData', responseData);
       oldReasons[index] = responseData['data']['data'][0];
       setState({
@@ -119,11 +119,11 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
   }
 
   function handleReturnAction(event: FormEvent<HTMLButtonElement>, index: number) {
-    const dataSourceSrv: any = getDataSourceSrv();
-    const dataSources = dataSourceSrv.datasources;
-    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    let dataSourceSrv: any = getDataSourceSrv();
+    let dataSources = dataSourceSrv.datasources;
+    let dataSource = dataSources[Object.keys(dataSources)[0]];
     dataSource.doWrite(cmdPVNames[index], ['PENDING']).then((response: any) => {
-      const responseData = response.data;
+      let responseData = response.data;
       console.log('responseData', responseData);
       setState({
         ...state,
@@ -133,11 +133,11 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
   }
 
   function handleReturnImmdiatelyAction(event: FormEvent<HTMLButtonElement>, index: number) {
-    const dataSourceSrv: any = getDataSourceSrv();
-    const dataSources = dataSourceSrv.datasources;
-    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    let dataSourceSrv: any = getDataSourceSrv();
+    let dataSources = dataSourceSrv.datasources;
+    let dataSource = dataSources[Object.keys(dataSources)[0]];
     dataSource.doWrite(cmdPVNames[index], ['IN']).then((response: any) => {
-      const responseData = response.data;
+      let responseData = response.data;
       console.log('responseData', responseData);
       setState({
         ...state,
@@ -146,7 +146,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     });
   }
 
-  const variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
+  let variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
   let repeatVar: any[] = [];
   for (let variable of variables) {
     if (variable['name'] === 'antennas') {
@@ -259,7 +259,7 @@ function getValue(dataFrame: DataFrame | null, fieldName: string, index: number)
 
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
-      const list = field.values;
+      let list = field.values;
       if (list && list.length > 0) {
         if (index >= 0) {
           let val = list.get(index);

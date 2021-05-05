@@ -10,8 +10,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 interface Props extends PanelProps<PVStatusOptions> {}
 
 export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const fieldName = options.fieldName;
-  const link = options.url_link;
+  let fieldName = options.fieldName;
+  let link = options.url_link;
 
   let isDark = config.theme.isDark;
   let textClass = isDark ? 'dark-text' : 'light-text';

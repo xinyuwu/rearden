@@ -23,19 +23,19 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    const templateSrv = getTemplateSrv();
-    const variables = templateSrv.getVariables();
-    const scopedVars = options.scopedVars;
+    let templateSrv = getTemplateSrv();
+    let variables = templateSrv.getVariables();
+    let scopedVars = options.scopedVars;
 
     console.log('variables ' + variables);
 
-    const parser = d3.utcParse('%Y-%m-%d %H:%M:%S.%L');
+    let parser = d3.utcParse('%Y-%m-%d %H:%M:%S.%L');
     let frames: MutableDataFrame[] = [];
 
     if (options.maxDataPoints === 1) {
       let refIdMap = new Map();
       let pvNames = options.targets.map(query => {
-        const name = templateSrv.replace(query['point_name'], scopedVars);
+        let name = templateSrv.replace(query['point_name'], scopedVars);
         refIdMap.set(name, query['refId']);
         return name;
       });
@@ -44,7 +44,7 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
         let response_data = response['data']['pointData'];
 
         for (let point of response_data) {
-          const frame = new MutableDataFrame({
+          let frame = new MutableDataFrame({
             refId: refIdMap.get(point['pointName']),
             name: point['pointName'],
             fields: [
@@ -74,10 +74,10 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
       }));
     }
 
-    const { range } = options;
-    const promises = options.targets.map(query =>
+    let { range } = options;
+    let promises = options.targets.map(query =>
       this.doHistoryRequest(query, range!, options['maxDataPoints']).then(response => {
-        const frame = new MutableDataFrame({
+        let frame = new MutableDataFrame({
           name: query['point_name'],
           refId: query['refId'],
           fields: [
@@ -122,7 +122,7 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
       points: pvNames,
     };
 
-    const result = await getBackendSrv().datasourceRequest({
+    let result = await getBackendSrv().datasourceRequest({
       method: 'POST',
       url: this.path,
       data: queryData,
@@ -138,8 +138,8 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
     }
 
     const format = d3.utcFormat('%Y-%m-%d %H:%M:%S');
-    const from = new Date(range!.from.valueOf());
-    const to = new Date(range!.to.valueOf());
+    let from = new Date(range!.from.valueOf());
+    let to = new Date(range!.to.valueOf());
 
     let queryData: any = {};
 
@@ -152,7 +152,7 @@ export class MonicaDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions
       queryData.maxCount = maxDataPoints.toString();
     }
 
-    const result = await getBackendSrv().datasourceRequest({
+    let result = await getBackendSrv().datasourceRequest({
       method: 'POST',
       url: this.path,
       data: queryData,

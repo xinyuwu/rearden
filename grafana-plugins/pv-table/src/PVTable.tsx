@@ -37,9 +37,9 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
 
   let theme = isDark ? darkTheme : lightTheme;
 
-  const fields = options.pv_fields;
+  let fields = options.pv_fields;
 
-  const fieldConfigList: any[] = [];
+  let fieldConfigList: any[] = [];
 
   let widthList: number[] = [];
 
@@ -73,7 +73,7 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
     widthList.unshift(100 - totalWidth);
   }
 
-  const fieldIndexMap: Map<string, number> = new Map();
+  let fieldIndexMap: Map<string, number> = new Map();
   if (data.series.length > 0) {
     let frame = data.series[0];
     for (let i = 0; i < frame.fields.length; i++) {
@@ -150,7 +150,7 @@ function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<strin
     return '';
   }
 
-  const list = dataFrame.fields[fieldIndex].values;
+  let list = dataFrame.fields[fieldIndex].values;
 
   if (list && list.length > 0) {
     let val = list.get(list.length - 1);

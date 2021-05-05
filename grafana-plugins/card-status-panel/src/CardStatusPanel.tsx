@@ -10,26 +10,27 @@ import Brightness1Icon from '@material-ui/icons/Brightness1';
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const CardStatusPanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const statusFieldName = options.statusFieldName;
-  const statusColorMappings = options.statusColorMapping;
-  const borderFieldName = options.borderFieldName;
-  const borderColorMappings = options.borderColorMapping;
+  let statusFieldName = options.statusFieldName;
+  let statusColorMappings = options.statusColorMapping;
+  let borderFieldName = options.borderFieldName;
+  let borderColorMappings = options.borderColorMapping;
 
-  const statusColorMapping = new Map();
+  let statusColorMapping = new Map();
   for (let mapping of statusColorMappings) {
     let obj = JSON.parse(mapping);
     statusColorMapping.set(obj['value'], obj['color']);
   }
 
-  const borderColorMapping = new Map();
+  let borderColorMapping = new Map();
   for (let mapping of borderColorMappings) {
     let obj = JSON.parse(mapping);
     borderColorMapping.set(obj['value'], obj['color']);
   }
 
   let columnCount = 0;
-  if (data.series && data.series.length>0)
+  if (data.series && data.series.length > 0) {
     columnCount = data.series[0].fields[0].values.length;
+  }
 
   let isDark = config.theme.isDark;
   let textClass = isDark ? 'dark-text' : 'light-text';
@@ -55,12 +56,16 @@ export const CardStatusPanel: React.FC<Props> = ({ options, data, width, height 
           {Array(columnCount)
             .fill(0)
             .map((_, col) => (
-              <div style= {{ color: getColor(borderColorMapping, getField(series, borderFieldName, col), 'transparent') }}
-                className='card-status-border'>
-                <Brightness1Icon style= {{ color: getColor(statusColorMapping, getField(series, statusFieldName, col), 'transparent') }}
-                  className='card-status-indicator' />
+              <div
+                style={{ color: getColor(borderColorMapping, getField(series, borderFieldName, col), 'transparent') }}
+                className="card-status-border"
+              >
+                <Brightness1Icon
+                  style={{ color: getColor(statusColorMapping, getField(series, statusFieldName, col), 'transparent') }}
+                  className="card-status-indicator"
+                />
               </div>
-          ))}
+            ))}
         </div>
       ))}
     </div>
@@ -103,9 +108,11 @@ function getField(dataFrame: DataFrame | null, fieldName: string, index: number)
 }
 
 function getColor(mapping: any, value: any, defaultColor: string): string {
-  if (mapping)
-   if (mapping.get('' + value))
-    return mapping.get('' + value).toString();
+  if (mapping) {
+    if (mapping.get('' + value)) {
+      return mapping.get('' + value).toString();
+    }
+  }
 
   return defaultColor;
 }

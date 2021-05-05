@@ -44,7 +44,7 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
 
   let barHeight = height - 10;
 
-  const barScale = d3
+  let barScale = d3
     .scaleLinear()
     .domain([0, maxVal])
     .nice()
@@ -134,7 +134,7 @@ function getValue(dataFrame: DataFrame | null, fieldName: string, index: number)
 
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
-      const list = field.values;
+      let list = field.values;
       if (list && list.length > 0) {
         let val = list.get(index);
         return val!;

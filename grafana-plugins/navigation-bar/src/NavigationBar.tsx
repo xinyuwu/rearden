@@ -16,9 +16,9 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const NavigationBar: React.FC<Props> = ({ options, data, width, height }) => {
   const styles = getStyles();
 
-  const var_name = options.var_name;
-  const field_name = options.field_name;
-  const field_mapping = new Map();
+  let var_name = options.var_name;
+  let field_name = options.field_name;
+  let field_mapping = new Map();
 
   for (let field of options.field_mapping) {
     if (field) {
@@ -96,7 +96,7 @@ const getStyles = stylesFactory(() => {
 function getValue(dataFrame: DataFrame, fieldName: string): string {
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
-      const list = field.values;
+      let list = field.values;
       if (list && list.length > 0) {
         let val = list.get(list.length - 1);
         return val!;

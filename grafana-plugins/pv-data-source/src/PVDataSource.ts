@@ -32,11 +32,11 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async query(options: DataQueryRequest<MyQuery>): Promise<DataQueryResponse> {
-    const timeStamp = new Date();
-    const promises = options.targets.map((query) =>
+    let timeStamp = new Date();
+    let promises = options.targets.map((query) =>
       this.doRequest(query, options).then(
         (response) => {
-          const frame = new MutableDataFrame({
+          let frame = new MutableDataFrame({
             refId: query['refId'],
             fields: [
               { name: 'name', type: FieldType.string },
@@ -73,7 +73,7 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
           return frame;
         },
         (reason) => {
-          const frame = new MutableDataFrame({
+          let frame = new MutableDataFrame({
             name: query['pv_name'],
             refId: query['refId'],
             fields: [
@@ -96,7 +96,7 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
   async doWrite(pvName: string, value: any[]) {
     console.log('doWrite ' + pvName);
-    const result = await getBackendSrv().datasourceRequest({
+    let result = await getBackendSrv().datasourceRequest({
       method: 'POST',
       url: this.path + '/write/' + pvName,
       data: value,
@@ -106,11 +106,11 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   }
 
   async doRequest(query: MyQuery, options: DataQueryRequest<MyQuery>) {
-    const templateSrv = getTemplateSrv();
-    const scopedVars = options.scopedVars;
-    const variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
+    let templateSrv = getTemplateSrv();
+    let scopedVars = options.scopedVars;
+    let variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
 
-    const pv_names = [];
+    let pv_names = [];
 
     let repeatVar = [];
     if (query['repeat_variable']) {
@@ -142,11 +142,11 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     if (repeatVar && repeatVar.length >= 1) {
       for (let val of repeatVar) {
         scopedVars[query['repeat_variable']!] = { text: val, value: val };
-        const name = templateSrv.replace(query['pv_name'], scopedVars);
+        let name = templateSrv.replace(query['pv_name'], scopedVars);
         pv_names.push(name);
       }
     } else {
-      const name = templateSrv.replace(query['pv_name'], scopedVars);
+      let name = templateSrv.replace(query['pv_name'], scopedVars);
       pv_names.push(name);
     }
 
@@ -154,7 +154,7 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
       return {};
     }
 
-    const result = await getBackendSrv().datasourceRequest({
+    let result = await getBackendSrv().datasourceRequest({
       method: 'POST',
       url: this.path + '/read',
       data: pv_names,

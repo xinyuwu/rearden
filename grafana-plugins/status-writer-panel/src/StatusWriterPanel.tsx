@@ -10,9 +10,9 @@ import { config, getDataSourceSrv } from '@grafana/runtime';
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const statusFieldName = options.statusFieldName;
-  const checkedValue = options.checkedValue;
-  const uncheckedValue = options.uncheckedValue;
+  let statusFieldName = options.statusFieldName;
+  let checkedValue = options.checkedValue;
+  let uncheckedValue = options.uncheckedValue;
 
   let columnCount = 0;
   if (data.series && data.series.length > 0) {
@@ -32,16 +32,15 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
 
     console.log('handleStatusChange ' + pvName);
 
-    const dataSourceSrv: any = getDataSourceSrv();
-    const dataSources = dataSourceSrv.datasources;
-    const dataSource = dataSources[Object.keys(dataSources)[0]];
+    let dataSourceSrv: any = getDataSourceSrv();
+    let dataSources = dataSourceSrv.datasources;
+    let dataSource = dataSources[Object.keys(dataSources)[0]];
     dataSource.doWrite(pvName, [value]).then((response: any) => {
-      const responseData = response.data;
+      let responseData = response.data;
       console.log('responseData', responseData);
     });
   }
 
-  let style = "padding-left: 0; padding-right: 0;";
   return (
     <div
       id="status-writer-div"
@@ -61,8 +60,8 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
             .map((_, col) => (
               <Checkbox
                 className="checkbox"
-                style= {{ color: getColor(series, statusFieldName, col) }}
-                disabled={ getField(series, statusFieldName, col) === '' }
+                style={{ color: getColor(series, statusFieldName, col) }}
+                disabled={getField(series, statusFieldName, col) === ''}
                 checked={getField(series, statusFieldName, col) === checkedValue}
                 onChange={e => handleStatusChange(e, getField(series, 'name', col))}
                 inputProps={{ 'aria-label': 'primary checkbox' }}
@@ -101,8 +100,9 @@ function getColor(dataFrame: DataFrame | null, fieldName: string, index: number)
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
       if (field.values && field.values.length > index) {
-        if (!isNaN(field.values.get(index)))
+        if (!isNaN(field.values.get(index))) {
           return 'primary';
+        }
       }
     }
   }
