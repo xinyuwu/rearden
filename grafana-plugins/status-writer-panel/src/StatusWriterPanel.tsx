@@ -4,7 +4,6 @@ import { PanelProps, DataFrame } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
-import Checkbox from '@material-ui/core/Checkbox';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 
 interface Props extends PanelProps<SimpleOptions> {}
@@ -23,7 +22,7 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
   let textClass = isDark ? 'dark-text' : 'light-text';
   const styles = getStyles();
 
-  let statusMatrix: boolean[][] = [];
+  let statusMatrix: any[] = [];
   for (let dataFrame of data.series) {
     let statusList: boolean[] = [];
     for (let field of dataFrame.fields) {
@@ -36,20 +35,13 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
     statusMatrix.push(statusList);
   }
 
-  let [state, setState] = React.useState<{ matrix: boolean[][] }>({
-    matrix: statusMatrix,
-  });
-
   console.log('status writer panel');
 
-  function handleStatusChange(
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    pvName: string,
-    row: number,
-    col: number
-  ) {
-    let checked = !state.matrix[row][col];
+  function handleStatusChange(event: React.ChangeEvent<HTMLInputElement>, pvName: string, row: number, col: number) {
+    let checked = !statusMatrix[row][col];
     let value = checked ? checkedValue : uncheckedValue;
+
+    statusMatrix[row][col] = checked;
 
     console.log('handleStatusChange ' + pvName + ' checked: ' + checked);
 
@@ -57,13 +49,9 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
     let dataSources = dataSourceSrv.datasources;
     let dataSource = dataSources[Object.keys(dataSources)[0]];
     dataSource.doWrite(pvName, [value]).then((response: any) => {
+      event.target['checked'] = checked;
       let responseData = response.data;
       console.log('responseData', responseData);
-    });
-    statusMatrix[row][col] = checked;
-    setState({
-      ...state,
-      ['matrix']: statusMatrix,
     });
   }
 
@@ -84,14 +72,12 @@ export const StatusWriterPanel: React.FC<Props> = ({ options, data, width, heigh
           {Array(columnCount)
             .fill(0)
             .map((_, col) => (
-              <Checkbox
+              <input
+                type="checkbox"
                 className="checkbox"
-                style={{ color: getColor(series, statusFieldName, col) }}
-                color="primary"
+                checked={statusMatrix[row][col]}
                 disabled={getField(series, statusFieldName, col) === ''}
-                checked={state.matrix[row][col]}
-                onClick={e => handleStatusChange(e, getField(series, 'name', col), row, col)}
-                inputProps={{ 'aria-label': 'primary checkbox' }}
+                onChange={e => handleStatusChange(e, getField(series, 'name', col), row, col)}
               />
             ))}
         </div>
@@ -119,24 +105,6 @@ const getStyles = stylesFactory(() => {
   };
 });
 
-function getColor(dataFrame: DataFrame | null, fieldName: string, index: number): string {
-  if (dataFrame === null) {
-    return 'transparent';
-  }
-
-  for (let field of dataFrame.fields) {
-    if (field['name'] === fieldName) {
-      if (field.values && field.values.length > index) {
-        if (!isNaN(field.values.get(index))) {
-          return '';
-        }
-      }
-    }
-  }
-
-  return 'transparent';
-}
-
 function getField(dataFrame: DataFrame | null, fieldName: string, index: number): string {
   if (dataFrame === null) {
     return '';
@@ -145,6 +113,10 @@ function getField(dataFrame: DataFrame | null, fieldName: string, index: number)
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
       if (field.values && field.values.length > index) {
+        if (isNaN(field.values.get(index))
+            && typeof(field.values.get(index))=='number')
+          return '';
+
         return field.values.get(index).toString();
       }
     }
