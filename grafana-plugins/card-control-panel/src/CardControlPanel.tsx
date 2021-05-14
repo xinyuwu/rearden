@@ -110,7 +110,7 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
         <DialogTitle id="alert-dialog-title">PDU {dialogOption.action}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to {dialogOption.action} the PDU.
+            Do you want to {dialogOption.action} the PDU.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

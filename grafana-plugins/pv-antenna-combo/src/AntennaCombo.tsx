@@ -94,7 +94,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
 
   let [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
     reason: reasons,
-    message: '',
+    message: message,
   });
 
   function handleOfflineChange(event: ChangeEvent<{ name?: string; value: any }>, index: number) {

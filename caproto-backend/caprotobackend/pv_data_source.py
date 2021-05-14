@@ -64,8 +64,11 @@ class PVDataSource:
         if 'ENUM' in control_pv.pv_value.data_type.name:
             enum_post_data = []
             for val in post_data:
-                enum_val = control_pv.metadata.enum_strings.index(val.encode())
-                enum_post_data.append(enum_val)
+                if isinstance(val, int):
+                    enum_post_data.append(val)
+                else:
+                    enum_val = control_pv.metadata.enum_strings.index(val.encode())
+                    enum_post_data.append(enum_val)
 
         result = pv.write(enum_post_data)
 
