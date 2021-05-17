@@ -51,6 +51,9 @@ class PVDataSource:
     @require_authentication(permission='Write')
     async def write_pv(self, request):
         pv_name = request.match_info.get('pv_name')
+        skip_wait = False
+        if request.match_info.get('skip_wait'):
+            skip_wait = True
 
         post_data = await request.json()
         # strip non-ascii characters
@@ -70,9 +73,9 @@ class PVDataSource:
                     enum_val = control_pv.metadata.enum_strings.index(val.encode())
                     enum_post_data.append(enum_val)
 
-        result = pv.write(enum_post_data, wait=False)
+        result = pv.write(enum_post_data, wait=!skip_wait)
 
-        if result.status.success == 1:
+        if skip_wait or result.status.success == 1:
             data = self.pv_to_data(pv)
             return {
                 'status': 'success',
