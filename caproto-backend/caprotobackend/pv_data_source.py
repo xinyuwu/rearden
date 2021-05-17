@@ -64,7 +64,7 @@ class PVDataSource:
         pv = self.ctx.get_pvs(pv_name)[0]
         enum_post_data = post_data
         control_pv = pv.read(data_type='control')
-        if 'ENUM' in control_pv.pv_value.data_type.name:
+        if 'ENUM' in control_pv.data_type.name:
             enum_post_data = []
             for val in post_data:
                 if isinstance(val, int):
