@@ -19,7 +19,7 @@ async def config_web_app(app, settings):
 
 class PVDataSource:
     def __init__(self):
-        self.ctx = Context()
+        self.ctx = Context(timeout=5)
 
     @rest_request_handler
     @require_authentication(permission='Read')
@@ -70,7 +70,7 @@ class PVDataSource:
                     enum_val = control_pv.metadata.enum_strings.index(val.encode())
                     enum_post_data.append(enum_val)
 
-        result = pv.write(enum_post_data)
+        result = pv.write(enum_post_data, wait=False)
 
         if result.status.success == 1:
             data = self.pv_to_data(pv)
