@@ -73,7 +73,7 @@ class PVDataSource:
                     enum_val = control_pv.metadata.enum_strings.index(val.encode())
                     enum_post_data.append(enum_val)
 
-        result = pv.write(enum_post_data, wait=!skip_wait)
+        result = pv.write(enum_post_data, wait= not skip_wait)
 
         if skip_wait or result.status.success == 1:
             data = self.pv_to_data(pv)
