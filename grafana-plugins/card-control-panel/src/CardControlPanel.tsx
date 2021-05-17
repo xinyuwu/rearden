@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from 'react';
 import './plugin.css';
-import { PanelProps, DataFrame } from '@grafana/data';
+import { PanelProps, DataFrame, VariableModel } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
@@ -10,7 +10,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv, getTemplateSrv } from '@grafana/runtime';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -18,6 +18,15 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 interface Props extends PanelProps<SimpleOptions> {}
+
+interface ExtendedVariableModel extends VariableModel {
+  current: {
+    selected: boolean;
+    value: any;
+    text: string;
+  };
+  options: any[];
+}
 
 export const CardControlPanel: React.FC<Props> = ({ options, data, width, height }) => {
   const [dialogOption, setDialogOption] = React.useState({
@@ -43,6 +52,28 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
 
   let theme = isDark ? darkTheme : lightTheme;
   let textClass = isDark ? 'dark-text' : 'light-text';
+
+  let variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
+  let repeatVar: any[] = [];
+  for (let variable of variables) {
+    if (variable['name'] === 'card') {
+      let value = variable['current']['value'];
+      if (value.length === 1 && value[0] === '$__all') {
+        repeatVar = variable['options']
+          .map((option: any) => {
+            if (option.value !== '$__all') {
+              return option.value;
+            }
+            return '';
+          })
+          .filter(val => {
+            return val !== '';
+          });
+      } else {
+        repeatVar = variable['current']['value'];
+      }
+    }
+  }
 
   let control_action = 'on';
   let [state, setState] = React.useState<{ control_action: string }>({
@@ -124,57 +155,68 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
       </Dialog>
 
       <ThemeProvider theme={theme}>
-        <div className="card-control-row">
-          <FormControl className="card-control-select">
-            <Select
-              id="select-offline-reason-label"
-              value={state.control_action}
-              onChange={event => handleControlChange(event)}
-              label="Age">
-              <MenuItem value="">
-                <em></em>
-              </MenuItem>
-              <MenuItem value={'none'}>none</MenuItem>
-              <MenuItem value={'on'}>on</MenuItem>
-              <MenuItem value={'off'}>off</MenuItem>
-              <MenuItem value={'reboot'}>reboot</MenuItem>
-            </Select>
-          </FormControl>
+        {repeatVar.map((val, index) => (
+          <div className="card-control-row">
+            <FormControl className="card-control-select">
+              <Select
+                id="select-offline-reason-label"
+                value={state.control_action}
+                onChange={event => handleControlChange(event)}
+                label="Age"
+              >
+                <MenuItem value="">
+                  <em></em>
+                </MenuItem>
+                <MenuItem value={'none'}>none</MenuItem>
+                <MenuItem value={'on'}>on</MenuItem>
+                <MenuItem value={'off'}>off</MenuItem>
+                <MenuItem value={'reboot'}>reboot</MenuItem>
+              </Select>
+            </FormControl>
 
-          <Button variant="contained"
-            onClick={e => handleAction(getField(data.series, 'comms', 'name'),
-            getField(data.series, 'state', 'Value').toLowerCase()=='connected' ? 0 : 1)}
-          >
-            {getField(data.series, 'state', 'Value').toLowerCase()=='connected'
-              ? 'Disconnect' : 'Connect'}
-          </Button>
+            <Button
+              variant="contained"
+              onClick={e =>
+                handleAction(
+                  getField(data.series, 'comms', 'name', index),
+                  getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 0 : 1
+                )}
+            >
+              {getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 'Disconnect' : 'Connect'}
+            </Button>
 
-          <Button variant="contained"
-            onClick={e => handleClickOpenDialog(e, 'startup', getField(data.series, 'startup', 'name'))}>
-            Startup
-          </Button>
-          <Button variant="contained"
-            onClick={e => handleClickOpenDialog(e, 'Shutdown', getField(data.series, 'shutdown', 'name'))}
-          >
-            Shutdown
-          </Button>
+            <Button
+              variant="contained"
+              onClick={e => handleClickOpenDialog(e, 'startup', getField(data.series, 'startup', 'name', index))}
+            >
+              Startup
+            </Button>
+            <Button
+              variant="contained"
+              onClick={e => handleClickOpenDialog(e, 'Shutdown', getField(data.series, 'shutdown', 'name', index))}
+            >
+              Shutdown
+            </Button>
 
-          <span
-            className={['card-control-item', getField(data.series, 'state', 'alarm_severity').toLowerCase()].join(' ')}
-          >
-            {getField(data.series, 'state', 'Value')}
-          </span>
+            <span
+              className={['card-control-item', getField(data.series, 'state', 'alarm_severity', index).toLowerCase()].join(
+                ' '
+              )}
+            >
+              {getField(data.series, 'state', 'Value', index)}
+            </span>
 
-          <LinearProgress
-            variant="determinate"
-            className="card-control-progress"
-            value={Number(getField(data.series, 'progress', 'Value'))}
-          />
+            <LinearProgress
+              variant="determinate"
+              className="card-control-progress"
+              value={Number(getField(data.series, 'progress', 'Value', index))}
+            />
 
-          <span className={['card-control-item', textClass].join(' ')}>
-            {getField(data.series, 'startup_status', 'Value')}
-          </span>
-        </div>
+            <span className={['card-control-item', textClass].join(' ')}>
+              {getField(data.series, 'startup_status', 'Value', index)}
+            </span>
+          </div>
+        ))}
       </ThemeProvider>
     </div>
   );
@@ -199,7 +241,7 @@ const getStyles = stylesFactory(() => {
   };
 });
 
-function getField(dataSeries: DataFrame[], refId: string, fieldName: string): string {
+function getField(dataSeries: DataFrame[], refId: string, fieldName: string, index: number): string {
   if (dataSeries === null) {
     return '';
   }
@@ -208,11 +250,12 @@ function getField(dataSeries: DataFrame[], refId: string, fieldName: string): st
     if (dataFrame.refId === refId) {
       for (let field of dataFrame.fields) {
         if (field['name'] === fieldName) {
-          if (isNaN(field.values.get(0)) && typeof field.values.get(0) === 'number') {
+          let value = field.values.get(index);
+          if (isNaN(value) && typeof value === 'number') {
             return '';
           }
 
-          return field.values.get(0).toString();
+          return value.toString();
         }
       }
     }

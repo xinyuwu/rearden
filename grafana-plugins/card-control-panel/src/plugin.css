@@ -13,6 +13,7 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
+  margin-bottom: 5px;
 }
 
 .card-control-row .card-control-progress {
@@ -34,6 +35,7 @@
 .card-control-row .card-control-item {
   text-align: center;
   flex-grow: 2;
+  max-width: 250px;
 }
 
 .card-control-row .alarm {
