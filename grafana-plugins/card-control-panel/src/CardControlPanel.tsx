@@ -130,8 +130,7 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
               id="select-offline-reason-label"
               value={state.control_action}
               onChange={event => handleControlChange(event)}
-              label="Age"
-            >
+              label="Age">
               <MenuItem value="">
                 <em></em>
               </MenuItem>
@@ -142,7 +141,13 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
             </Select>
           </FormControl>
 
-          <Button variant="contained">{getField(data.series, 'comms', 'Value') ? 'Disconnected' : 'Connected'}</Button>
+          <Button variant="contained"
+            onClick={e => handleAction(getField(data.series, 'comms', 'name'),
+            getField(data.series, 'state', 'Value').toLowerCase()=='connected' ? 0 : 1)}
+          >
+            {getField(data.series, 'state', 'Value').toLowerCase()=='connected'
+              ? 'Disconnect' : 'Connect'}
+          </Button>
 
           <Button variant="contained"
             onClick={e => handleClickOpenDialog(e, 'startup', getField(data.series, 'startup', 'name'))}>
