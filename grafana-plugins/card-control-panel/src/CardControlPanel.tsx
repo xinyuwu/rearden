@@ -180,7 +180,8 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
                 handleAction(
                   getField(data.series, 'comms', 'name', index),
                   getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 0 : 1
-                )}
+                )
+              }
             >
               {getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 'Disconnect' : 'Connect'}
             </Button>
@@ -199,9 +200,10 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
             </Button>
 
             <span
-              className={['card-control-item', getField(data.series, 'state', 'alarm_severity', index).toLowerCase()].join(
-                ' '
-              )}
+              className={[
+                'card-control-item',
+                getField(data.series, 'state', 'alarm_severity', index).toLowerCase(),
+              ].join(' ')}
             >
               {getField(data.series, 'state', 'Value', index)}
             </span>
