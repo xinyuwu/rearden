@@ -1,0 +1,17 @@
+
+/* .pv-query .gf-form{
+  flex: 100%;
+} */
+
+/* .pv-query .form-field{
+  flex: 100%;
+} */
+
+.command-query .gf-form-inline {
+  margin-bottom: 4px;
+}
+
+.command-query input {
+  flex-grow: 1;
+  width: auto;
+}
