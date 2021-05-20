@@ -36,11 +36,8 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
   });
 
   let theme = isDark ? darkTheme : lightTheme;
-
   let fields = options.pv_fields;
-
   let fieldConfigList: any[] = [];
-
   let widthList: number[] = [];
 
   fields.forEach(text => {
@@ -67,10 +64,15 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
 
   let totalWidth = widthList.reduce((a, b) => a + b, 0);
 
-  if (totalWidth === 0 || totalWidth >= 100) {
-    widthList.unshift(100 / (fieldConfigList.length + 1));
+  if (totalWidth === 0 || totalWidth > 100) {
+    if (options.show_name) {
+      widthList.fill(100 / (fieldConfigList.length + 1));
+    } else {
+      widthList.fill(100 / fieldConfigList.length);
+    }
   } else {
-    widthList.unshift(100 - totalWidth);
+    if (options.show_name)
+      widthList.unshift(100 - totalWidth);
   }
 
   let fieldIndexMap: Map<string, number> = new Map();
@@ -95,13 +97,14 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
         <TableContainer component={Paper}>
           <Table aria-label="simple table">
             <colgroup>
-              {widthList.map(width => (
-                <col style={{ width: width + '%' }} />
+              {widthList.map(col_wid => (
+                <col style={{ width: col_wid + '%' }} />
               ))}
             </colgroup>
             <TableHead>
               <TableRow>
-                <TableCell align="center">PV Name</TableCell>
+                {options.show_name && <TableCell align="center">Name</TableCell>}
+
                 {fieldConfigList.map(field => (
                   <TableCell align="center">{field['displayName'] ? field['displayName'] : field['name']}</TableCell>
                 ))}
@@ -109,23 +112,27 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
             </TableHead>
 
             <TableBody>
-              {data.series.map(dataFrame => (
-                <TableRow
-                  key={dataFrame.name}
-                  className={getLastValue(dataFrame, 'alarm_severity', fieldIndexMap).toLowerCase()}
-                >
-                  <Tooltip title={dataFrame.name!} placement="top">
-                    <TableCell align="center" className="header_column">
-                      {dataFrame['refId']}
-                    </TableCell>
-                  </Tooltip>
-                  {fieldConfigList.map(field => (
-                    <Tooltip title={getLastValue(dataFrame, 'raw_value', fieldIndexMap)} placement="top">
-                      <TableCell align="right">{getLastValue(dataFrame, field, fieldIndexMap)}</TableCell>
-                    </Tooltip>
-                  ))}
-                </TableRow>
-              ))}
+              {data.series.map(dataFrame =>
+                dataFrame.fields[0].values.toArray().map((field, index) => (
+                  <TableRow
+                    key={dataFrame.name}
+                    className={getValue(dataFrame, options.background_field, fieldIndexMap, index).toLowerCase()}
+                  >
+                    {options.show_name && (
+                      <Tooltip title={dataFrame.name!} placement="top">
+                        <TableCell align="center" className="header_column">
+                          {dataFrame['refId']}
+                        </TableCell>
+                      </Tooltip>
+                    )}
+                    {fieldConfigList.map(field => (
+                      <Tooltip title={getValue(dataFrame, 'raw_value', fieldIndexMap, index)} placement="top">
+                        <TableCell align="right">{getValue(dataFrame, field, fieldIndexMap, index)}</TableCell>
+                      </Tooltip>
+                    ))}
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
@@ -134,7 +141,7 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
   );
 };
 
-function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<string, number>): any {
+function getValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<string, number>, index: number): any {
   let fieldName = '';
   let precision = NaN;
 
@@ -153,7 +160,7 @@ function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<strin
   let list = dataFrame.fields[fieldIndex].values;
 
   if (list && list.length > 0) {
-    let val = list.get(list.length - 1);
+    let val = list.get(index);
     let numVal = Number(val);
 
     if (!isNaN(numVal) && !isNaN(precision)) {
@@ -163,5 +170,5 @@ function getLastValue(dataFrame: DataFrame, field: any, fieldIndexMap: Map<strin
     return val;
   }
 
-  return {};
+  return '';
 }

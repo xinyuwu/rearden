@@ -20,3 +20,16 @@
 #pv-table-div .minor_alarm {
   background-color: #D81B60;
 }
+
+
+#pv-table-div .completed      { background-color: rgba(100,221,23,0.6);  }
+#pv-table-div .errored        { background-color: rgba(229,115,115,0.6); }
+#pv-table-div .executing      { background-color: rgba(224,224,224,0.6); }
+#pv-table-div .failure        { background-color: rgba(240,98,146,0.6);  }
+#pv-table-div .idle           { background-color: rgba(215,204,200,0.6); }
+#pv-table-div .observed       { background-color: rgba(129,199,132,0.6); }
+#pv-table-div .pendingarchive { background-color: rgba(149,117,205,0.6); }
+#pv-table-div .processing     { background-color: rgba(255,193,7,0.6);   }
+#pv-table-div .retired        { background-color: rgba(144,164,174,0.6); }
+#pv-table-div .scheduled      { background-color: rgba(66,165,245,0.6);  }
+#pv-table-div .submitted      { background-color: rgba(238,255,65,0.6);  }
