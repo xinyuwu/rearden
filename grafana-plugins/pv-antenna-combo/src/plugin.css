@@ -24,6 +24,9 @@
 .antenna-select-combo .antenna-state.out {
   background: #FF5252;
 }
+.antenna-select-combo .antenna-state.local {
+  background: #FFA000;
+}
 .antenna-select-combo .antenna-state.pending {
   background: #FFEB3B;
 }

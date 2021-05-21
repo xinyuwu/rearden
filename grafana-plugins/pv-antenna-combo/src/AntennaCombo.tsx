@@ -1,18 +1,17 @@
-import React, { ChangeEvent, FormEvent } from 'react';
+import React, { FormEvent } from 'react';
 import './plugin.css';
 import { PanelProps, DataFrame, VariableModel } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { getTemplateSrv } from '@grafana/runtime';
+
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -94,17 +93,20 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
 
   let [state, setState] = React.useState<{ reason: string[]; message: string | null }>({
     reason: reasons,
-    message: message,
+    message: '',
   });
 
-  function handleOfflineChange(event: ChangeEvent<{ name?: string; value: any }>, index: number) {
-    let reason = event.target.value!;
+  function handleKeyPress(event: any, index: number) {
+    if(event.key !== 'Enter')
+      return;
 
     console.log('offlinePVName', offlinePVNames[index]);
+    let reason = event.target.value;
 
     let dataSourceSrv: any = getDataSourceSrv();
     let dataSources = dataSourceSrv.datasources;
     let dataSource = dataSources[Object.keys(dataSources)[0]];
+    reasons[index] = reason;
     let oldReasons: string[] = state.reason;
     dataSource.doWrite(offlinePVNames[index], [reason]).then((response: any) => {
       let responseData = response.data;
@@ -168,6 +170,17 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
     }
   }
 
+  let offlineReasons = [
+    'NOT INSTALLED',
+    'drives fault',
+    'drives maintenence',
+    'cooling fault',
+    'PAF maintenence',
+    'digital backend fault',
+    'no beam weight',
+    'debugging/testing',
+  ];
+
   return (
     <div
       className={cx(
@@ -200,26 +213,20 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
                   </div>
                 </div>
 
-                <FormControl className="select-offline-reason">
-                  <InputLabel id="select-offline-reason-label">Offline reason</InputLabel>
-                  <Select
-                    labelId="select-offline-reason-label"
-                    value={reasons[index]}
-                    onChange={event => handleOfflineChange(event, index)}
-                  >
-                    <MenuItem value="">
-                      <em></em>
-                    </MenuItem>
-                    <MenuItem value={'NOT INSTALLED'}>NOT INSTALLED</MenuItem>
-                    <MenuItem value={'drives fault'}>drives fault</MenuItem>
-                    <MenuItem value={'drives maintenence'}>drives maintenence</MenuItem>
-                    <MenuItem value={'cooling fault'}>cooling fault</MenuItem>
-                    <MenuItem value={'PAF maintenence'}>PAF maintenence</MenuItem>
-                    <MenuItem value={'digital backend fault'}>digital backend fault</MenuItem>
-                    <MenuItem value={'no beam weight'}>no beam weight</MenuItem>
-                    <MenuItem value={'debugging/testing'}>debugging/testing</MenuItem>
-                  </Select>
-                </FormControl>
+                <Autocomplete
+                  freeSolo
+                  className="select-offline-reason"
+                  options={offlineReasons}
+                  value={reasons[index]}
+                  onKeyPress={event => handleKeyPress(event, index)}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label="Offline Reason"
+                      margin="normal"
+                    />
+                  )}
+                />
 
                 <ButtonGroup variant="contained">
                   <Button onClick={event => handleReturnAction(event, index)}>Return</Button>

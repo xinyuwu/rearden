@@ -19,7 +19,8 @@
     "emotion": "10.0.27",
     "@material-ui/core": "latest",
     "@material-ui/icons": "latest",
-    "@grafana/runtime": "latest"
+    "@grafana/runtime": "latest",
+    "@material-ui/lab": "latest"
   },
   "engines": {
     "node": ">=14"
