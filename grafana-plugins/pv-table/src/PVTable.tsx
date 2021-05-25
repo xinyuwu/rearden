@@ -71,8 +71,9 @@ export const PVTable: React.FC<Props> = ({ options, data, width, height }) => {
       widthList.fill(100 / fieldConfigList.length);
     }
   } else {
-    if (options.show_name)
+    if (options.show_name) {
       widthList.unshift(100 - totalWidth);
+    }
   }
 
   let fieldIndexMap: Map<string, number> = new Map();

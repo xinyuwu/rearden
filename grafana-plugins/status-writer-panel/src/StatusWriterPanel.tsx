@@ -113,9 +113,9 @@ function getField(dataFrame: DataFrame | null, fieldName: string, index: number)
   for (let field of dataFrame.fields) {
     if (field['name'] === fieldName) {
       if (field.values && field.values.length > index) {
-        if (isNaN(field.values.get(index))
-            && typeof(field.values.get(index))=='number')
+        if (isNaN(field.values.get(index)) && typeof field.values.get(index) === 'number') {
           return '';
+        }
 
         return field.values.get(index).toString();
       }

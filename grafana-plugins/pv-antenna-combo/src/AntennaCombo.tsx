@@ -97,8 +97,9 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
   });
 
   function handleKeyPress(event: any, index: number) {
-    if(event.key !== 'Enter')
+    if (event.key !== 'Enter') {
       return;
+    }
 
     console.log('offlinePVName', offlinePVNames[index]);
     let reason = event.target.value;
@@ -219,13 +220,7 @@ export const AntennaCombo: React.FC<Props> = ({ options, data, width, height }) 
                   options={offlineReasons}
                   value={reasons[index]}
                   onKeyPress={event => handleKeyPress(event, index)}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      label="Offline Reason"
-                      margin="normal"
-                    />
-                  )}
+                  renderInput={params => <TextField {...params} label="Offline Reason" margin="normal" />}
                 />
 
                 <ButtonGroup variant="contained">
