@@ -30,7 +30,7 @@ services:
     volumes:
       - ./docker_compose_config/grafana.ini:/etc/grafana/grafana.ini
       - ./grafana-plugins:/grafana-plugins
-      - grafana-storage:/var/lib/grafana
+      - ./grafana-storage:/var/lib/grafana
 
   # nginx:
   #   build:
@@ -42,6 +42,3 @@ services:
   #   ports:
   #     - "8080:8080"
   #     - "443:443"
-
-volumes:
-    grafana-storage:
