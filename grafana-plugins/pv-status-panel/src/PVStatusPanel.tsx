@@ -6,13 +6,77 @@ import { css, cx } from 'emotion';
 import { stylesFactory } from '@grafana/ui';
 import './plugin.css';
 import Tooltip from '@material-ui/core/Tooltip';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 interface Props extends PanelProps<PVStatusOptions> {}
 
 export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height }) => {
-  let fieldName = options.fieldName;
-  let link = options.url_link;
+  let graph_url = options.graph_url;
+  let url_links = new Map();
 
+  if (options.url_links) {
+    options.url_links.map(entry => {
+      let obj = JSON.parse(entry);
+      url_links.set(obj.refId, obj.url);
+    });
+  }
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [selectedMenuItem, setSelectedMenuItem] = React.useState<{ dataFrame: DataFrame | null; index: number }>({
+    dataFrame: null,
+    index: 0,
+  });
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+    setSelectedMenuItem({ dataFrame: null, index: 0 });
+  };
+
+  const handleOpenMenu = (event: any, dataFrame: DataFrame, index: number) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedMenuItem({ dataFrame: dataFrame, index: index });
+  };
+
+  const goToDashboardURL = () => {
+    let url: string | undefined = '';
+    if (selectedMenuItem.dataFrame) {
+      url = selectedMenuItem.dataFrame.refId;
+
+      let var_names = getFields(selectedMenuItem.dataFrame, 'var_name');
+      let var_values = getFields(selectedMenuItem.dataFrame, 'var_value');
+      let var_name = '';
+      let var_value = '';
+
+      if (var_names && var_values) {
+        var_name = var_names.get(selectedMenuItem.index);
+        var_value = var_values.get(selectedMenuItem.index);
+      }
+
+      if (var_name && var_value && url) {
+        url.replace('$' + var_name, var_value);
+      }
+    }
+
+    window.open(url, '_blank');
+    setAnchorEl(null);
+  };
+
+  const goToGraphURL = () => {
+    let name = '';
+    if (selectedMenuItem.dataFrame) {
+      let names = getFields(selectedMenuItem.dataFrame, 'name');
+      if (names && names.length > 0) {
+        name = names.get(selectedMenuItem.index);
+      }
+    }
+
+    let url = graph_url + '&name=' + name;
+    window.open(url, '_blank');
+    setAnchorEl(null);
+  };
+
+  let fieldName = options.fieldName;
   let isDark = config.theme.isDark;
   let textClass = isDark ? 'dark-text' : 'light-text';
 
@@ -57,6 +121,11 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
       >
+        <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleCloseMenu}>
+          <MenuItem onClick={goToDashboardURL}>Open Sub Dashboard</MenuItem>
+          <MenuItem onClick={goToGraphURL}>Open Graph</MenuItem>
+        </Menu>
+
         {data.series.map((series: any, i: number) => (
           <g className="pv-status">
             <text x={0} className={textClass} y={i * (nodeHeight + nodeMargin) + (nodeHeight + charSize) / 2}>
@@ -70,7 +139,7 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
                   y={i * (nodeHeight + nodeMargin)}
                   height={nodeHeight}
                   width={nodeWidth}
-                  onClick={e => goToURL(e, link)}
+                  onClick={e => handleOpenMenu(e, series, j)}
                 />
               </Tooltip>
             ))}
@@ -91,10 +160,6 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
     </div>
   );
 };
-
-function goToURL(event: any, url: string) {
-  window.open(url, '_blank');
-}
 
 const getStyles = stylesFactory(() => {
   return {

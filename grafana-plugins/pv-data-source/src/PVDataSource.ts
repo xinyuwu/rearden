@@ -24,6 +24,7 @@ interface ExtendedVariableModel extends VariableModel {
 
 export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
   path = '';
+  repeatVarMapping = new Map();
 
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
@@ -46,6 +47,8 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               { name: 'alarm_status', type: FieldType.string },
               { name: 'alarm_severity', type: FieldType.string },
               { name: 'raw_value', type: FieldType.string },
+              { name: 'var_name', type: FieldType.string },
+              { name: 'var_value', type: FieldType.string },
             ],
             meta: {
               preferredVisualisationType: 'logs',
@@ -54,6 +57,13 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
 
           if (response['data']) {
             for (let response_data of response['data']) {
+              let mapping = this.repeatVarMapping.get(response_data['name']);
+              let var_name = '';
+              let var_val = '';
+              if (mapping) {
+                var_name = mapping[0];
+                var_val = mapping[1];
+              }
               if (response_data['data']) {
                 frame.appendRow([
                   response_data['name'],
@@ -63,9 +73,21 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
                   response_data['alarm_status'],
                   response_data['alarm_severity'],
                   JSON.stringify(response_data),
+                  var_name,
+                  var_val,
                 ]);
               } else {
-                frame.appendRow([response_data['name'], timeStamp, null, '', '', '', JSON.stringify(response_data)]);
+                frame.appendRow([
+                  response_data['name'],
+                  timeStamp,
+                  null,
+                  '',
+                  '',
+                  '',
+                  JSON.stringify(response_data),
+                  var_name,
+                  var_val,
+                ]);
               }
             }
           }
@@ -83,6 +105,8 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
               { name: 'alarm_status', type: FieldType.string },
               { name: 'alarm_severity', type: FieldType.string },
               { name: 'raw_value', type: FieldType.string },
+              { name: 'var_name', type: FieldType.string },
+              { name: 'var_value', type: FieldType.string },
             ],
           });
 
@@ -140,10 +164,12 @@ export class PVDataSource extends DataSourceApi<MyQuery, MyDataSourceOptions> {
     }
 
     if (repeatVar && repeatVar.length >= 1) {
+      repeatVar = Array.from(repeatVar).sort();
       for (let val of repeatVar) {
         scopedVars[query['repeat_variable']!] = { text: val, value: val };
         let name = templateSrv.replace(query['pv_name'], scopedVars);
         pv_names.push(name);
+        this.repeatVarMapping.set(name, [query['repeat_variable'], val]);
       }
     } else {
       let name = templateSrv.replace(query['pv_name'], scopedVars);

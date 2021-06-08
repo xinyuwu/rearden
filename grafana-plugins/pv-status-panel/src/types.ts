@@ -1,4 +1,5 @@
 export interface PVStatusOptions {
   fieldName: string;
-  url_link: string;
+  graph_url: string;
+  url_links: string[];
 }

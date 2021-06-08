@@ -11,8 +11,15 @@ export const plugin = new PanelPlugin<PVStatusOptions>(PVStatusPanel).setPanelOp
       defaultValue: 'Value',
     })
     .addTextInput({
-      path: 'url_link',
-      name: 'URL link to dashboard',
+      path: 'graph_url',
+      name: 'URL of dashboard to disply graph of the pv',
+      description: 'URL of dashboard to disply graph of the pv',
+      defaultValue: '',
+    })
+    .addStringArray({
+      path: 'url_links',
+      name: 'URL links for each item',
       description: 'The url to the dashboard to go to when a bar is clicked',
+      defaultValue: ['{"refId": "A", "url": "/d/Kk190ojMz/card-control-panel?var-card=All&var-antenna=$antenna"}'],
     });
 });
