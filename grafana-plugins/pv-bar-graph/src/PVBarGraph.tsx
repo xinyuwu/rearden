@@ -44,11 +44,7 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
 
   let barHeight = height - 10;
 
-  let barScale = d3
-    .scaleLinear()
-    .domain([0, maxVal])
-    .nice()
-    .range([0, barHeight]);
+  let barScale = d3.scaleLinear().domain([0, maxVal]).nice().range([0, barHeight]);
 
   console.log('pv bar graph');
 
@@ -72,7 +68,7 @@ export const PVBarGraph: React.FC<Props> = ({ options, data, width, height }) =>
         {Array(barCount)
           .fill(0)
           .map((_, index) => (
-            <g className="pv-bar">
+            <g className="pv-bar" key={index}>
               <Tooltip title={getValue(dataFrame, 'raw_value', index)} placement="top">
                 <rect className="pv-bar-base" x={index * (barWidth + barMargin)} height={barHeight} width={barWidth} />
               </Tooltip>
