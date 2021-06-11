@@ -54,9 +54,10 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
   let textClass = isDark ? 'dark-text' : 'light-text';
 
   let variables = getTemplateSrv().getVariables() as ExtendedVariableModel[];
+  let varName = getField(data.series, 'state', 'var_name', 0);
   let repeatVar: any[] = [];
   for (let variable of variables) {
-    if (variable['name'] === 'card') {
+    if (variable['name'] === varName) {
       let value = variable['current']['value'];
       if (value.length === 1 && value[0] === '$__all') {
         repeatVar = variable['options']
@@ -179,11 +180,11 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
               onClick={e =>
                 handleAction(
                   getField(data.series, 'comms', 'name', index),
-                  getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 0 : 1
+                  getField(data.series, 'state', 'Value', index).toLowerCase() === 'disconnected' ? 1 : 0
                 )
               }
             >
-              {getField(data.series, 'state', 'Value', index).toLowerCase() === 'connected' ? 'Disconnect' : 'Connect'}
+              {getField(data.series, 'state', 'Value', index).toLowerCase() === 'disconnected' ? 'Connect' : 'Disonnect'}
             </Button>
 
             <Button
@@ -202,7 +203,7 @@ export const CardControlPanel: React.FC<Props> = ({ options, data, width, height
             <span
               className={[
                 'card-control-item',
-                getField(data.series, 'state', 'alarm_severity', index).toLowerCase(),
+                getField(data.series, 'state', 'Value', index).replace(' ', '-').toLowerCase(),
               ].join(' ')}
             >
               {getField(data.series, 'state', 'Value', index)}

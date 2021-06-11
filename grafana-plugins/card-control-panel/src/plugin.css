@@ -57,3 +57,19 @@
 .card-control-row .minor_alarm {
   background-color: #D81B60;
 }
+
+.card-control-row .idle {
+  background-color: #D500F9;
+}
+
+.card-control-row .low-power {
+  background-color: #FF8F00;
+}
+
+.card-control-row .disconnected {
+  background-color: #E53935;
+}
+
+.card-control-row .loaded {
+  background-color: #448AFF;
+}
