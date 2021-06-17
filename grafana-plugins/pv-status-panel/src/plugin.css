@@ -73,3 +73,7 @@
   cursor: pointer;
   fill: #ECEFF1;
 }
+
+li.hidden {
+  display: none;
+}

@@ -38,6 +38,25 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
     setSelectedMenuItem({ dataFrame: dataFrame, index: index });
   };
 
+
+  const isDisplayMenu = ():boolean => {
+    if (graph_url)
+      return Boolean(anchorEl);
+
+    if (getLink())
+      return Boolean(anchorEl);
+
+    return false;
+  }
+
+  const getLink = ():string => {
+    if (selectedMenuItem.dataFrame) {
+      return url_links.get(selectedMenuItem.dataFrame.refId);
+    }
+
+    return '';
+  }
+
   const goToDashboardURL = () => {
     let url: string | undefined = '';
     if (selectedMenuItem.dataFrame) {
@@ -71,7 +90,7 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
       }
     }
 
-    let url = graph_url + '&name=' + name;
+    let url = graph_url + '&pvname=' + name;
     window.open(url, '_blank');
     setAnchorEl(null);
   };
@@ -121,9 +140,9 @@ export const PVStatusPanel: React.FC<Props> = ({ options, data, width, height })
         xmlns="http://www.w3.org/2000/svg"
         xmlnsXlink="http://www.w3.org/1999/xlink"
       >
-        <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-          <MenuItem onClick={goToDashboardURL}>Open Sub Dashboard</MenuItem>
-          <MenuItem onClick={goToGraphURL}>Open Graph</MenuItem>
+        <Menu id="simple-menu" anchorEl={anchorEl} keepMounted open={isDisplayMenu()} onClose={handleCloseMenu}>
+          <MenuItem onClick={goToDashboardURL} className={getLink() ? '' : 'hidden'}>Open Sub Dashboard</MenuItem>
+          <MenuItem onClick={goToGraphURL} className={graph_url ? '' : 'hidden'}>Open Graph</MenuItem>
         </Menu>
 
         {data.series.map((series: any, i: number) => (
